@@ -23,6 +23,7 @@ class SlaveManager(rpyc.Service):
     @contextlib.contextmanager
     def allocation(self, setup):
         print "Allocated", setup
+        # TODO: Require setup with soft/hard policy
         # self._allocation.append(setup)
         try:
             yield setup
