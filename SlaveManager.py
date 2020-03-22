@@ -5,10 +5,12 @@ import rpyc
 import contextlib
 from lib import Heart
 
+
 def setup_factory(hostname):
     return {
         "127.0.0.1": Heart,
     }[hostname](rpyc.classic.connect(hostname))
+
 
 class SlaveManager(rpyc.Service):
     """
@@ -44,7 +46,9 @@ class SlaveManager(rpyc.Service):
 
 
 if __name__ == "__main__":
+    rpyc.lib.setup_logger()
     from rpyc.utils.server import ThreadedServer
-    t = ThreadedServer(SlaveManager, port=18861, protocol_config={'allow_public_attrs': True})
+    # Note: all connection will use the same SlaveManager
+    t = ThreadedServer(SlaveManager(), port=18861, protocol_config={'allow_public_attrs': True})
     t.start()
 

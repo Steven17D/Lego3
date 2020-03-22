@@ -1,29 +1,26 @@
 import pytest
-import functools
-import rpyc
+from lego import get_slaves
 
-
-def get_slaves(*slaves):
-
-    def decorator_wrapper(func):
-        @functools.wraps(func)
-        def wrapper():
-            slave_manager = rpyc.connect(host="127.0.0.1", port=18861)
-            with slave_manager.root.get_setup(slaves) as connections:
-                func(connections)
-
-        return wrapper
-
-    return decorator_wrapper
 
 @get_slaves("127.0.0.1")
-def test_abc(slaves):
-    print slaves
-    slaves["127.0.0.1"].reboot()
+def test_emperor_lib(slaves):
+    heart = slaves["127.0.0.1"]
+    try:
+        heart.emperory_lib.install()
+    finally:
+        heart.emperory_lib.uinstall()
 
-"""
-@get_slaves("PC-2", "PC-1")
-def test_cba(slaves):
-    print "AA"
-    print slaves
-"""
+@get_slaves("127.0.0.1")
+def test_extreme(slaves):
+    """
+    1. Monito log
+    2. Send and receive packets
+    3. reboot
+    """
+    heart = slaves["127.0.0.1"]
+
+
+@get_slaves("A_1", "B_1", "B_2", "C_1", "C_2")
+def test_multiple_slaves(slaves):
+    locals().update(slaves)
+
