@@ -29,6 +29,8 @@ class SlaveManager(rpyc.Service):
             yield setup
         finally:
             print "Deallocated", setup
+            for connection in setup.itervalues():
+                connection._conn.close()
             # self._allocation.remove(setup)
 
     def on_connect(self, conn):
