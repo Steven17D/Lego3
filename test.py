@@ -1,3 +1,4 @@
+
 import pytest
 from lego import get_slaves
 
