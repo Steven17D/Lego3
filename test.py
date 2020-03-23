@@ -2,11 +2,15 @@ import pytest
 from lego import get_slaves
 
 
-@get_slaves("127.0.0.1")
+@get_slaves({"127.0.0.1": Linux})
 def test_command(slaves):
-    heart = slaves["127.0.0.1"]
-    output = heart.run_command("uname -a")
+    linux = slaves["127.0.0.1"]
+    bash = Bash(linux)
+    output = bash.run_command("uname -a")
     assert "Linux" in output
+
+    network = Network(linux.connection)
+    network
 
 # @get_slaves("127.0.0.1")
 # def test_extreme(slaves):
