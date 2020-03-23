@@ -1,33 +1,26 @@
-
+import asyncio
 import pytest
-from lego import get_slaves
+import socket
 
+# Will replaced with get_slaves from lego.py
+def ask_for_setup(test):
+    async def wrapper():
+        print(f'Want to run {test}')
+        setup = await asyncio.sleep(1)
+        await test(setup)
+    return wrapper
 
-@get_slaves({"127.0.0.1": Linux})
-def test_command(slaves):
-    linux = slaves["127.0.0.1"]
-    bash = Bash(linux)
-    output = bash.run_command("uname -a")
-    assert "Linux" in output
+@pytest.mark.asyncio_cooperative
+@ask_for_setup
+async def test_1(setup):
+    print("test1 start")
+    await asyncio.sleep(2)
+    print("test1 done")
 
-    network = Network(linux.connection)
-    network
-
-# @get_slaves("127.0.0.1")
-# def test_extreme(slaves):
-#     """
-#     1. Monito log
-#     2. Send and receive packets
-#     3. reboot
-#     """
-#     heart = slaves["127.0.0.1"]
-#     try:
-#         heart.steven_lib.install()
-#     finally:
-#         heart.steven_lib.uinstall()
-
-
-#@get_slaves("A_1", "B_1", "B_2", "C_1", "C_2")
-# def test_multiple_slaves(slaves):
-#    locals().update(slaves)
+@pytest.mark.asyncio_cooperative
+@ask_for_setup
+async def test_2(setup):
+    print("test2 start")
+    await asyncio.sleep(1)
+    print("test2 done")
 
