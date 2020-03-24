@@ -34,7 +34,7 @@ class ResourceManager(rpyc.Service):
         print("Calculate if the requested setup available")
         
         # Return whether the requested setup available
-        return True
+        return False
 
     def exposed_get_wait_info(self):
         # By the connection_id return the info about the test ahead of
@@ -42,11 +42,11 @@ class ResourceManager(rpyc.Service):
 
         return ['TestSingleUDP', 'TestSingleTCP', 'TestMultipleTCP']
 
-    def exposed_notity_to_run(self):
+    def exposed_notify_me(self):
         # Register this test (by connection) to the waiting_to_run queue and
-        # notiry the test when its requested setup is ready for it.
+        # notify the test when its requested setup is ready for it.
 
-        time.sleep(3)
+        time.sleep(2)
         return
         
 

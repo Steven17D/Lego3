@@ -52,7 +52,8 @@ def get_slaves(setup: dict, should_lock: bool):
 
     def decorator_wrapper(test):
         @functools.wraps(test)
-        async def wrapper():
+        async def wrapper(**kwargs):
+            del kwargs
             loop = asyncio.get_event_loop()
             resource_manager = rpyc.connect(host='127.0.0.1', port=18861)
 
