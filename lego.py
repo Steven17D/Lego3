@@ -30,11 +30,11 @@ def create_slaves(setup):
     """
 
     slaves = []
-    for component_name in setup:
-        slaves = 'API_' + component_name
+    for component_name in setup[0]:
+        slaves.append('API_' + component_name)
     return slaves
 
-def get_slaves(setup: dict, should_lock: bool):
+def get_slaves(*setup: dict, should_lock=True):
     """
     Returns the slaves for the requested setup when its available.
 
