@@ -2,9 +2,10 @@
 Runs on dv-samech
 """
 import rpyc
-import contextlib
+import time
 import collections
-from lib import Heart
+
+from helpers import Client, Test, Setup
 
 
 class ResourceManager(rpyc.Service):
@@ -20,35 +21,34 @@ class ResourceManager(rpyc.Service):
         self._allocations = collections.defaultdict(bool)
 
     def on_connect(self, conn):
-        print "Connected", conn
+        print(f'Connected: {conn}')
 
     def on_disconnect(self, conn):
-        print "Disconnected", conn
+        print(f'Disconnected:{conn}')
 
-    def exposed_request_setup(client: Client, test: Test, setup: Setup) ->
-    bool:
+    def exposed_request_setup(self, client: Client, test: Test, setup: Setup) -> bool:
         # Note: remember to delete the connection from the queue if there
         # is no response.
-        print("register the request and its details in registered_to_run
-                queue")
+        print("register the request and its details in registered_to_run queue")
 
         print("Calculate if the requested setup available")
         
         # Return whether the requested setup available
         return True
 
-    def exposed_get_waiting_tests_info() 
+    def exposed_get_wait_info(self):
         # By the connection_id return the info about the test ahead of
         # this test.
 
-        pass
+        return ['TestSingleUDP', 'TestSingleTCP', 'TestMultipleTCP']
 
-    def exposed_notity_to_run()
+    def exposed_notity_to_run(self):
         # Register this test (by connection) to the waiting_to_run queue and
         # notiry the test when its requested setup is ready for it.
-        
-        pass
 
+        time.sleep(3)
+        return
+        
 
 if __name__ == "__main__":
     rpyc.lib.setup_logger()
