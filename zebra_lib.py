@@ -1,12 +1,14 @@
+"""A library which used as basic API to zebra component"""
+
+
 import sys
 import rpyc
 import time
 import socket
 import asyncio
 import watchdog
-from scapy.all import *
-from watchdog.observers import Observer
 from contextlib import contextmanager
+from watchdog.observers import Observer
 
 
 # Just for the test
@@ -55,7 +57,6 @@ class ZebraLib(Lib):
             yield observer
         finally:
             observer.stop()
-
 
 def main():
     con = rpyc.classic.connect('127.0.0.1')
