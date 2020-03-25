@@ -1,0 +1,25 @@
+version: '3'
+services:
+    slave-zebra:
+        image: slave
+        container_name: zebra
+        hostname: zebra
+    slave-giraffe:
+        image: slave
+        container_name: giraffe
+        hostname: giraffe
+    slave-elephant:
+        image: slave
+        container_name: elephant
+        hostname: elephant
+    dns:
+        image: defreitas/dns-proxy-server
+        hostname: dns.mageddo
+        restart: unless-stopped
+        ports: 
+            - "5380:5380"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/etc/resolv.conf:/etc/resolv.conf"
+
+
