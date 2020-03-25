@@ -1,17 +1,25 @@
 version: '3'
 services:
+    central:
+        image: slave
+        container_name: central
+        hostname: central
+
     slave-zebra:
         image: slave
         container_name: zebra
         hostname: zebra
+
     slave-giraffe:
         image: slave
         container_name: giraffe
         hostname: giraffe
+
     slave-elephant:
         image: slave
         container_name: elephant
         hostname: elephant
+
     dns:
         image: defreitas/dns-proxy-server
         hostname: dns.mageddo
