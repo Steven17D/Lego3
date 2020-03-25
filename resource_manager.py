@@ -14,25 +14,27 @@ class ResourceManager(rpyc.Service):
     Should manage the permissions for tests to run on setup.
     Stores its database using Rest API.
     """
+    __slots__ = ("_allocations", "_bg_threads")
     ALIASES = ["ResourceManager"]
 
     def __init__(self, *args, **kwargs):
         super(ResourceManager, self).__init__(*args, **kwargs)
         self._allocations = collections.defaultdict(bool)
+        self._bg_threads = dict()
 
     def on_connect(self, conn):
         print(f'Connected: {conn}')
+        self._bg_threads[conn] = rpyc.BgServingThread(conn)
 
     def on_disconnect(self, conn):
-        print(f'Disconnected:{conn}')
+        print(f'Disconnected: {conn}')
+        del self._bg_threads[conn]
 
     def exposed_request_setup(self, client: Client, test: Test, setup: Setup) -> bool:
-        # Note: remember to delete the connection from the queue if there
-        # is no response.
+        # Note: remember to delete the connection from the queue if there is no response.
         print("register the request and its details in registered_to_run queue")
-
         print("Calculate if the requested setup available")
-        
+        # self._allocations
         # Return whether the requested setup available
         return False
 

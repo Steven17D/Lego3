@@ -6,7 +6,6 @@ import functools
 
 from helpers import Client, Test, Setup
 
-
 # Should be in one main file, to enable access by the resource manager and this
 # file.
 # Which file format?
@@ -16,7 +15,6 @@ SETUP = {
     'Windows': ['1', '2']
 }
 
-#########################
 
 def create_slaves(setup):
     """
@@ -34,11 +32,12 @@ def create_slaves(setup):
         slaves.append('API_' + component_name)
     return slaves
 
-def get_slaves(*setup: dict, should_lock=True):
+
+def get_slaves(setup: dict, *, should_lock=True):
     """
     Returns the slaves for the requested setup when its available.
 
-    Note: Should run several tests asynchronicly.
+    Note: Should run several tests asynchronously.
 
     Args:
         setup - Which setup required, specific devices or just types.
@@ -58,7 +57,7 @@ def get_slaves(*setup: dict, should_lock=True):
             resource_manager = rpyc.connect(host='127.0.0.1', port=18861)
 
             request_setup = resource_manager.root.request_setup
-            may_run = await loop.run_in_executor(None, request_setup, Client(),Test(test), Setup(setup, should_lock))
+            may_run = await loop.run_in_executor(None, request_setup, Client(), Test(test), Setup(setup, should_lock))
 
             if not may_run:
                 get_wait_info = resource_manager.root.get_wait_info
