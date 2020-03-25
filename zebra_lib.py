@@ -11,7 +11,8 @@ from contextlib import contextmanager
 
 class EventHandler(watchdog.events.FileSystemEventHandler):
     def on_modified(self, event):
-        print(event)
+        pass
+        #print(event)
 
 
 class Lib:
@@ -28,8 +29,8 @@ class ZebraLib(Lib):
         super(ZebraLib, self).__init__(con)
 
     def send_packets(self, *args, **kwargs):
-        send = rpyc.async_(self._con.modules['scapy.all'].send)
-        return send(*args, **kwargs)
+        sender = rpyc.async_(self._con.modules['scapy.all'].send)
+        return sender(*args, **kwargs)
 
     @contextmanager
     def sniff_packets(self, *args, **kwargs):
@@ -38,7 +39,7 @@ class ZebraLib(Lib):
         try:
             yield sniffer
         finally:
-            print(sniffer.stop())
+            sniffer.stop()
 
     @contextmanager
     def monitor_logs(self, files: list):
@@ -55,12 +56,13 @@ class ZebraLib(Lib):
 
 def main():
     con = rpyc.classic.connect('127.0.0.1')
-    con.modules.sys.stdout = sys.stdout
     z = ZebraLib(con)
     f = open('a.txt', 'w')
 
-    with z.sniff_packets(filter='udp and port 1337') as sniffer:
-        z.send_packets(IP(dst='127.0.0.1')/UDP(dport=1337))
+    with z.sniff_packets(filter='udp and port 1337'):
+        ip = con.modules['scapy.all'].IP
+        udp = con.modules['scapy.all'].UDP
+        z.send_packets(ip(dst='127.0.0.1')/udp(dport=1338))
 
     with z.monitor_logs(['.']) as observer:
         f.write('Lego 3 will be great')
