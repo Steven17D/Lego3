@@ -63,7 +63,7 @@ def get_slaves(setup: dict, *, should_lock=True):
                 get_wait_info = resource_manager.root.get_wait_info
                 print(await loop.run_in_executor(None, get_wait_info))
 
-                should_schedule = input('By the above info, would you like to schedule your test? (y/n)')
+                should_schedule = 'y'  # input('By the above info, would you like to schedule your test? (y/n)')
                 if should_schedule != 'y':
                     print('The test cannot run since there are no available setup')
                     resource_manager.close()
