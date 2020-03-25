@@ -2,13 +2,22 @@
 The lib contains all the logic
 """
 import rpyc
+import plumbum
+import socket
 
 
-class Lib(object):
+class Lib:
     __slots__ = ['_conn']
 
-    def __init__(self, slave_connection):
-        self._conn = slave_connection
+    def __init__(self, hostname):
+        try:
+            self._conn = rpyc.classic.connect(hostname, keepalive=True)
+        except (ConnectionRefusedError, socket.gaierror):
+            # with plumbum.SshMachine(hostname, user="root", password="password") as machine:
+            #     # TODO: ?machine.popen(["pip", "install", "plumbum"])
+            #     with rpyc.utils.zerodeploy.DeployedServer(machine) as server:
+            #         self._conn = server.classic_connect()
+            raise
 
     @property
     def connection(self):
@@ -16,8 +25,8 @@ class Lib(object):
 
 
 class NetworkElement(Lib):
-    def __init__(self, connection):
-        super(NetworkElement, self).__init__(connection)
+    def __init__(self, *args, **kwargs):
+        super(NetworkElement, self).__init__(*args, **kwargs)
 
     def send_packet(self, addr, data):
         rsocket = self._conn.modules["socket"]

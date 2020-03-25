@@ -5,7 +5,7 @@ import rpyc
 import time
 import collections
 
-from helpers import Client, Test, Setup
+# from helpers import Client, Test, Setup
 
 
 class ResourceManager(rpyc.Service):
@@ -30,13 +30,13 @@ class ResourceManager(rpyc.Service):
         print(f'Disconnected: {conn}')
         del self._bg_threads[conn]
 
-    def exposed_request_setup(self, client: Client, test: Test, setup: Setup) -> bool:
+    def exposed_request_setup(self, host) -> bool:
         # Note: remember to delete the connection from the queue if there is no response.
         print("register the request and its details in registered_to_run queue")
-        print("Calculate if the requested setup available")
+        print(f"Calculate if the requested setup available {host}")
         # self._allocations
         # Return whether the requested setup available
-        return False
+        return True
 
     def exposed_get_wait_info(self):
         # By the connection_id return the info about the test ahead of
