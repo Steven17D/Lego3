@@ -4,15 +4,15 @@ import time
 import socket
 import asyncio
 import watchdog
-from watchdog.observers import Observer
 from scapy.all import *
+from watchdog.observers import Observer
 from contextlib import contextmanager
 
 
+# Just for the test
 class EventHandler(watchdog.events.FileSystemEventHandler):
     def on_modified(self, event):
-        pass
-        #print(event)
+        print(event)
 
 
 class Lib:
@@ -42,12 +42,15 @@ class ZebraLib(Lib):
             sniffer.stop()
 
     @contextmanager
-    def monitor_logs(self, files: list):
+    def monitor_logs(
+            self,
+            event_handler: watchdog.events.FileSystemEventHandler,
+            files: list
+        ):
         observer = self._con.modules['watchdog.observers'].Observer()
         for file in files:
-            observer.schedule(EventHandler(), file)
+            observer.schedule(event_handler, file)
         observer.start()
-
         try:
             yield observer
         finally:
@@ -64,7 +67,7 @@ def main():
         udp = con.modules['scapy.all'].UDP
         z.send_packets(ip(dst='127.0.0.1')/udp(dport=1338))
 
-    with z.monitor_logs(['.']) as observer:
+    with z.monitor_logs(EventHandler(), ['.']) as observer:
         f.write('Lego 3 will be great')
         f.flush()
 
