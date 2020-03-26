@@ -1,11 +1,9 @@
 """
-Runs on dv-samech
+Runs on central server
 """
 import rpyc
-import time
-import collections
-
-# from helpers import Client, Test, Setup
+import contextlib
+from typing import List, Tuple, AnyStr, ClassVar
 
 
 class ResourceManager(rpyc.Service):
@@ -19,7 +17,7 @@ class ResourceManager(rpyc.Service):
 
     def __init__(self, *args, **kwargs):
         super(ResourceManager, self).__init__(*args, **kwargs)
-        self._allocations = collections.defaultdict(bool)
+        self._allocations = dict()
         self._bg_threads = dict()
 
     def on_connect(self, conn):
@@ -30,26 +28,26 @@ class ResourceManager(rpyc.Service):
         print(f'Disconnected: {conn}')
         del self._bg_threads[conn]
 
-    def exposed_request_setup(self, host) -> bool:
-        # Note: remember to delete the connection from the queue if there is no response.
-        print("register the request and its details in registered_to_run queue")
-        print(f"Calculate if the requested setup available {host}")
-        # self._allocations
-        # Return whether the requested setup available
-        return True
+    @contextlib.contextmanager
+    def allocation(self, slaves):
+        self.allocate(slaves)
+        try:
+            yield
+        finally:
+            self.deallocate(slaves)
 
-    def exposed_get_wait_info(self):
-        # By the connection_id return the info about the test ahead of
-        # this test.
+    def allocate(self, slaves):
+        self._allocations[slaves] = True
 
-        return ['TestSingleUDP', 'TestSingleTCP', 'TestMultipleTCP']
+    def deallocate(self, slaves):
+        del self._allocations[slaves]
 
-    def exposed_notify_me(self):
-        # Register this test (by connection) to the waiting_to_run queue and
-        # notify the test when its requested setup is ready for it.
+    def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
+        # TODO: Run query and return results in allocation
+        return [(query, "lib.NetworkElement")]
 
-        time.sleep(2)
-        return
+    def exposed_acquire(self, query):
+        return self.allocation(self.run_query(query))
         
 
 if __name__ == "__main__":
