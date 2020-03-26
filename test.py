@@ -4,12 +4,12 @@ import asyncio
 
 
 @pytest.mark.lego("giraffe", exclusive=False)
-def test_a(slave):
-    print(f"Slave a: {slave}")
+def test_a(slaves):
+    print(f"Slaves a: {slaves}")
     time.sleep(1)
 
 
 @pytest.mark.lego("giraffe")
-async def test_b(slave):
-    print(f"Slave b: {slave}")
+async def test_b(slaves):
+    print(f"Slaves b: {slaves}")
     await asyncio.sleep(1)

@@ -11,30 +11,34 @@ MARK = "lego"
 
 
 @pytest.fixture(scope="session")
-def slave():
+def slaves(request):
     """
     Provides the connection to the resource manager.
     :return: RPyC connection to ResourceManager service.
     """
     try:
-        return rpyc.connect(host='central', port=18861)
+        resource_manager = rpyc.connect(host='central', port=18861)
     except:  # TODO: Handle specify
-        machine = plumbum.SshMachine("central", user="root", password="password")
-        with rpyc.utils.zerodeploy.DeployedServer(machine) as server:
-            conn = server.classic_connect()
-            return  # TODO: Upload resource_manager
+        with plumbum.SshMachine("central", user="root", password="password") as machine:
+            with rpyc.utils.zerodeploy.DeployedServer(machine) as server:
+                with server.classic_connect() as connection:
+                    # TODO: connection.upload(ResourceManager)
+                    resource_manager = connection
+
+    request.addfinalizer(resource_manager.close)
+    return resource_manager
 
 
 def pytest_generate_tests(metafunc):
     """
     Official: Generate (multiple) parametrized calls to a test function.
-    Used in order to verify lego test function signature to have the 'slave' fixture.
+    Used in order to verify lego test function signature to have the 'slaves' fixture.
     :param metafunc: _pytest.python.Metafunc
     :return:
     """
     lego_mark = metafunc.definition.get_closest_marker(MARK)
     if lego_mark is not None:
-        assert ["slave"] == metafunc.fixturenames, "Lego test must use fixture 'slave'"
+        assert "slaves" in metafunc.fixturenames, "Lego test must use fixture 'slaves'"
 
 
 def pytest_runtest_setup(item: pytest.Item):
@@ -53,12 +57,12 @@ def pytest_runtest_setup(item: pytest.Item):
     if asyncio.iscoroutinefunction(test_function):
         @functools.wraps(test_function)
         async def test_wrapper(*args, **kwargs):
-            return await async_run_test(test_function, lego_mark, *args, resource_manager=kwargs["slave"])
+            return await async_run_test(test_function, lego_mark, *args, resource_manager=kwargs["slaves"])
 
     else:
         @functools.wraps(test_function)
         def test_wrapper(*args, **kwargs):
-            return run_test(test_function, lego_mark, *args, resource_manager=kwargs["slave"])
+            return run_test(test_function, lego_mark, *args, resource_manager=kwargs["slaves"])
 
     test_wrapper.pytestmark = test_function.pytestmark
     item.obj = test_wrapper
