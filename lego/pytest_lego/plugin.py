@@ -27,7 +27,8 @@ def slave():
 
 def pytest_generate_tests(metafunc):
     """
-    Generate (multiple) parametrized calls to a test function.
+    Official: Generate (multiple) parametrized calls to a test function.
+    Used in order to verify lego test function signature to have the 'slave' fixture.
     :param metafunc: _pytest.python.Metafunc
     :return:
     """
@@ -37,6 +38,12 @@ def pytest_generate_tests(metafunc):
 
 
 def pytest_runtest_setup(item: pytest.Item):
+    """
+    Wraps the test function which is stored in `item.obj`.
+    The wrapper uses the fixture in order to create the slaves and pass to the test.
+    :param item: pytest.Item
+    :return:
+    """
     lego_mark = item.get_closest_marker(MARK)
     if lego_mark is None:
         # The test doesn't have lego mark

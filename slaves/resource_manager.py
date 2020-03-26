@@ -32,21 +32,23 @@ class ResourceManager(rpyc.Service):
     def allocation(self, slaves):
         self.allocate(slaves)
         try:
-            yield
+            yield slaves
         finally:
             self.deallocate(slaves)
 
     def allocate(self, slaves):
-        self._allocations[slaves] = True
+        for slave in slaves:
+            self._allocations[slave] = True
 
     def deallocate(self, slaves):
-        del self._allocations[slaves]
+        for slave in slaves:
+            del self._allocations[slave]
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation
         return [(query, "lib.NetworkElement")]
 
-    def exposed_acquire(self, query):
+    def exposed_acquire(self, query, exclusive):
         return self.allocation(self.run_query(query))
         
 
