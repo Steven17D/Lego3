@@ -22,12 +22,16 @@ services:
 
     dns:
         image: defreitas/dns-proxy-server
+        container_name: dns-proxy-server
         hostname: dns.mageddo
         restart: unless-stopped
         ports: 
             - "5380:5380"
         volumes:
+            - "/opt/dns-proxy-server/conf:/app/conf"
             - "/var/run/docker.sock:/var/run/docker.sock"
-            - "/etc/resolv.conf:/etc/resolv.conf"
+            - "/run:/host/run"
+        environment:
+            - MG_RESOLVCONF=/host/run/resolvconf/resolv.conf
 
 
