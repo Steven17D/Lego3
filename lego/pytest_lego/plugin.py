@@ -22,7 +22,7 @@ def slaves(request):
     manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
     try:
         resource_manager = rpyc.connect(host=manager, port=18861)
-    except (ConnectionRefusedError, socket.gaierror):
+    except ConnectionRefusedError:
         with plumbum.SshMachine(manager, user="root", password="password") as machine:
             with DeployedServer(machine) as server:
                 with server.classic_connect() as connection:
@@ -43,6 +43,7 @@ def spawn_resource_manager(connection):
     ros = connection.modules.os
     args = ['python', '/root/slaves/resource_manager.py', '--host', '0.0.0.0']
     env = {"PYTHONPATH": "/root/"}
+    # TODO: Make it work
     ros.spawnvpe(ros.P_NOWAIT, 'python', args, env)
 
 

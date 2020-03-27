@@ -19,7 +19,7 @@ class CoreLib:
     def __init__(self, hostname):
         try:
             self._conn = rpyc.classic.connect(hostname, keepalive=True)
-        except (ConnectionRefusedError, socket.gaierror):
+        except ConnectionRefusedError:
             with plumbum.SshMachine(hostname, user="root", password="password") as machine:
                 with DeployedServer(machine) as server:
                     self._conn = server.classic_connect()
