@@ -4,29 +4,32 @@ The lib contains all the logic
 import rpyc
 import plumbum
 import socket
+from rpyc.utils.zerodeploy import DeployedServer
 
 
-class Lib:
+class CoreLib:
+    """
+    Wrapper for RPyC connection.
+    Provides simple API which is generic for all RPyC connections.
+    In order to extened the API implement a wrapping Lib.
+    """
+
     __slots__ = ['_conn']
 
     def __init__(self, hostname):
         try:
             self._conn = rpyc.classic.connect(hostname, keepalive=True)
         except (ConnectionRefusedError, socket.gaierror):
-            # with plumbum.SshMachine(hostname, user="root", password="password") as machine:
-            #     # TODO: ?machine.popen(["pip", "install", "plumbum"])
-            #     with rpyc.utils.zerodeploy.DeployedServer(machine) as server:
-            #         self._conn = server.classic_connect()
-            raise
+            with plumbum.SshMachine(hostname, user="root", password="password") as machine:
+                with DeployedServer(machine) as server:
+                    self._conn = server.classic_connect()
 
     @property
     def connection(self):
         return self._conn
 
-
-class NetworkElement(Lib):
-    def __init__(self, *args, **kwargs):
-        super(NetworkElement, self).__init__(*args, **kwargs)
+    def getpid(self):
+        return self._conn.modules.os.getpid()
 
     def send_packet(self, addr, data):
         rsocket = self._conn.modules["socket"]
@@ -34,26 +37,16 @@ class NetworkElement(Lib):
         remote_socket.sendto(addr, data)
         remote_socket.close()
 
-
-class Linux(NetworkElement):
-    pass
-
-
-class Windows(NetworkElement):
-    pass
-
-
-class Bash(Lib):
-    def __init__(self, linux):
-        super(Bash, self).__init__(linux.connection)
-        self._linux = linux
-
     def run_command(self, command):
         return self._conn.modules["subprocess"].check_output(command.split())
 
     def reboot(self):
         return self._conn.modules.os.system("reboot")
 
-    def getpid(self):
-        return self._conn.modules.os.getpid()
 
+class Linux(CoreLib):
+    pass
+
+
+class Windows(CoreLib):
+    pass
