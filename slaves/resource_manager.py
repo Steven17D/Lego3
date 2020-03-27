@@ -21,13 +21,11 @@ class ResourceManager(rpyc.Service):
         self._bg_threads = dict()
 
     def on_connect(self, conn):
-        print(f'Connected: {conn}')
         self._bg_threads[conn] = rpyc.BgServingThread(conn)
 
     def on_disconnect(self, conn):
-        print(f'Disconnected: {conn}')
-        del self._bg_threads[conn]
-
+        self._bg_threads.pop(conn).stop()
+        
     @contextlib.contextmanager
     def allocation(self, slaves):
         self.allocate(slaves)
@@ -46,7 +44,7 @@ class ResourceManager(rpyc.Service):
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation
-        return [(query, "lib.NetworkElement")]
+        return [(query, "lib.CoreLib")]
 
     def exposed_acquire(self, query, exclusive):
         return self.allocation(self.run_query(query))
