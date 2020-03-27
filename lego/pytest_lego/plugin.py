@@ -1,11 +1,14 @@
-import rpyc
-import pytest
-import importlib
-import plumbum
-import socket
-import functools
 import asyncio
-from pytest_lego import slave_factory
+import functools
+import socket
+import plumbum
+import pytest
+import rpyc
+import rpyc.utils.classic
+from rpyc.utils.zerodeploy import DeployedServer
+
+import pytest_lego.slave_factory as slave_factory
+from slaves import rpyc_classic
 
 MARK = "lego"
 
@@ -16,17 +19,43 @@ def slaves(request):
     Provides the connection to the resource manager.
     :return: RPyC connection to ResourceManager service.
     """
+    manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
     try:
-        resource_manager = rpyc.connect(host='central', port=18861)
-    except:  # TODO: Handle specify
-        with plumbum.SshMachine("central", user="root", password="password") as machine:
-            with rpyc.utils.zerodeploy.DeployedServer(machine) as server:
+        resource_manager = rpyc.connect(host=manager, port=18861)
+    except (ConnectionRefusedError, socket.gaierror):
+        with plumbum.SshMachine(manager, user="root", password="password") as machine:
+            with DeployedServer(machine) as server:
                 with server.classic_connect() as connection:
-                    # TODO: connection.upload(ResourceManager)
-                    resource_manager = connection
+                    spawn_resource_manager(connection)
+
+        resource_manager = rpyc.connect(host=manager, port=18861)
 
     request.addfinalizer(resource_manager.close)
     return resource_manager
+
+
+def spawn_resource_manager(connection):
+    # Upload necessary dependencies
+    rpyc.utils.classic.upload_package(connection, rpyc, '/root/rpyc')
+    rpyc.utils.classic.upload_package(connection, plumbum, '/root/plumbum')
+    rpyc.utils.classic.upload_package(connection, rpyc_classic, '/root/slaves')
+    # Start the resource_manager python process
+    ros = connection.modules.os
+    args = ['python', '/root/slaves/resource_manager.py', '--host', '0.0.0.0']
+    env = {"PYTHONPATH": "/root/"}
+    ros.spawnvpe(ros.P_NOWAIT, 'python', args, env)
+
+
+def pytest_configure(config):
+    # Verify inifile
+    assert MARK in config.inicfg.config.sections, f"Missing {MARK} section in inifile"
+    assert "resouce_manager" in config.inicfg.config.sections[MARK], ""
+
+    # Add the lego mark
+    config.addinivalue_line(
+        "markers",
+        "lego: Lego mark used in order to supply slaves by query"
+    )
 
 
 def pytest_generate_tests(metafunc):
