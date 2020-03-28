@@ -8,7 +8,7 @@ def get_library(lib_name):
 
 
 @contextlib.contextmanager
-def acquire_slaves(resource_manager, query, exclusive=True):
+def acquire_slaves(lego_manager, query, exclusive=True):
     """
     Creates salves based on the requested setup.
 
@@ -18,5 +18,5 @@ def acquire_slaves(resource_manager, query, exclusive=True):
     Returns:
         slaves.
     """
-    with resource_manager.root.acquire(query, exclusive) as slaves:
+    with lego_manager.root.acquire(query, exclusive) as slaves:
         yield [get_library(library_name)(hostname) for hostname, library_name in slaves]

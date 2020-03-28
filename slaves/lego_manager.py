@@ -6,17 +6,17 @@ import contextlib
 from typing import List, Tuple, AnyStr, ClassVar
 
 
-class ResourceManager(rpyc.Service):
+class LegoManager(rpyc.Service):
     """
     Setup and tests manager.
     Should manage the permissions for tests to run on setup.
     Stores its database using Rest API.
     """
     __slots__ = ("_allocations", "_bg_threads")
-    ALIASES = ["ResourceManager"]
+    ALIASES = ["LegoManager"]
 
     def __init__(self, *args, **kwargs):
-        super(ResourceManager, self).__init__(*args, **kwargs)
+        super(LegoManager, self).__init__(*args, **kwargs)
         self._allocations = dict()
         self._bg_threads = dict()
 
@@ -53,7 +53,7 @@ class ResourceManager(rpyc.Service):
 if __name__ == "__main__":
     rpyc.lib.setup_logger()
     from rpyc.utils.server import ThreadedServer
-    # Note: all connection will use the same ResourceManager
-    t = ThreadedServer(ResourceManager(), port=18861)
+    # Note: all connection will use the same LegoManager
+    t = ThreadedServer(LegoManager(), port=18861)
     t.start()
 

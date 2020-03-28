@@ -9,7 +9,7 @@ def test_a(slaves):
     time.sleep(1)
 
 
-@pytest.mark.lego("giraffe")
+@pytest.mark.lego("elephant")
 async def test_b(slaves):
     print(f"Slaves b: {slaves}")
     await asyncio.sleep(1)

@@ -16,32 +16,32 @@ MARK = "lego"
 @pytest.fixture(scope="session")
 def slaves(request):
     """
-    Provides the connection to the resource manager.
-    :return: RPyC connection to ResourceManager service.
+    Provides the connection to the lego manager.
+    :return: RPyC connection to LegoManager service.
     """
     manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
     try:
-        resource_manager = rpyc.connect(host=manager, port=18861)
+        lego_manager = rpyc.connect(host=manager, port=18861)
     except ConnectionRefusedError:
         with plumbum.SshMachine(manager, user="root", password="password") as machine:
             with DeployedServer(machine) as server:
                 with server.classic_connect() as connection:
-                    spawn_resource_manager(connection)
+                    spawn_lego_manager(connection)
 
-        resource_manager = rpyc.connect(host=manager, port=18861)
+        lego_manager = rpyc.connect(host=manager, port=18861)
 
-    request.addfinalizer(resource_manager.close)
-    return resource_manager
+    request.addfinalizer(lego_manager.close)
+    return lego_manager
 
 
-def spawn_resource_manager(connection):
+def spawn_lego_manager(connection):
     # Upload necessary dependencies
     rpyc.utils.classic.upload_package(connection, rpyc, '/root/rpyc')
     rpyc.utils.classic.upload_package(connection, plumbum, '/root/plumbum')
     rpyc.utils.classic.upload_package(connection, rpyc_classic, '/root/slaves')
-    # Start the resource_manager python process
+    # Start the lego_manager python process
     ros = connection.modules.os
-    args = ['python', '/root/slaves/resource_manager.py', '--host', '0.0.0.0']
+    args = ['python', '/root/slaves/lego_manager.py', '--host', '0.0.0.0']
     env = {"PYTHONPATH": "/root/"}
     # TODO: Make it work
     ros.spawnvpe(ros.P_NOWAIT, 'python', args, env)
@@ -87,22 +87,22 @@ def pytest_runtest_setup(item: pytest.Item):
     if asyncio.iscoroutinefunction(test_function):
         @functools.wraps(test_function)
         async def test_wrapper(*args, **kwargs):
-            return await async_run_test(test_function, lego_mark, *args, resource_manager=kwargs["slaves"])
+            return await async_run_test(test_function, lego_mark, *args, lego_manager=kwargs["slaves"])
 
     else:
         @functools.wraps(test_function)
         def test_wrapper(*args, **kwargs):
-            return run_test(test_function, lego_mark, *args, resource_manager=kwargs["slaves"])
+            return run_test(test_function, lego_mark, *args, lego_manager=kwargs["slaves"])
 
     test_wrapper.pytestmark = test_function.pytestmark
     item.obj = test_wrapper
 
 
-def run_test(test_function, mark, resource_manager):
-    with slave_factory.acquire_slaves(resource_manager, *mark.args, **mark.kwargs) as slave:
-        return test_function(slave)
+def run_test(test_function, mark, lego_manager):
+    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
+        return test_function(slaves)
 
 
-async def async_run_test(test_function, mark, resource_manager):
-    with slave_factory.acquire_slaves(resource_manager, *mark.args, **mark.kwargs) as slave:
-        return await test_function(slave)
+async def async_run_test(test_function, mark, lego_manager):
+    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
+        return await test_function(slaves)
