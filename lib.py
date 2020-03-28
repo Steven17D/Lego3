@@ -23,6 +23,12 @@ class CoreLib:
             with plumbum.SshMachine(hostname, user="root", password="password") as machine:
                 with DeployedServer(machine) as server:
                     self._conn = server.classic_connect()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._conn.close()
 
     @property
     def connection(self):

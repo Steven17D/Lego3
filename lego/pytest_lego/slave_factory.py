@@ -19,4 +19,8 @@ def acquire_slaves(lego_manager, query, exclusive=True):
         slaves.
     """
     with lego_manager.root.acquire(query, exclusive) as slaves:
-        yield [get_library(library_name)(hostname) for hostname, library_name in slaves]
+        with contextlib.ExitStack() as stack:
+            yield [
+                stack.enter_context(get_library(library_name)(hostname))
+                for hostname, library_name in slaves
+            ]
