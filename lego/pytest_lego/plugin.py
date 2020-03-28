@@ -75,31 +75,32 @@ def pytest_generate_tests(metafunc):
         assert "slaves" in metafunc.fixturenames, "Lego test must use fixture 'slaves'"
 
 
-def pytest_runtest_setup(item: pytest.Item):
+@pytest.mark.tryfirst
+def pytest_pyfunc_call(pyfuncitem):
     """
     Wraps the test function which is stored in `item.obj`.
     The wrapper uses the fixture in order to create the slaves and pass to the test.
     :param item: pytest.Item
     :return:
     """
-    lego_mark = item.get_closest_marker(MARK)
+    lego_mark = pyfuncitem.get_closest_marker(MARK)
     if lego_mark is None:
         # The test doesn't have lego mark
         return
 
-    test_function = item.obj
-    if asyncio.iscoroutinefunction(test_function):
-        @functools.wraps(test_function)
+    test = pyfuncitem.obj
+    if asyncio.iscoroutinefunction(test):
+        @functools.wraps(test)
         async def test_wrapper(*args, **kwargs):
-            return await async_run_test(test_function, lego_mark, *args, lego_manager=kwargs["slaves"])
+            return await async_run_test(test, lego_mark, *args, lego_manager=kwargs["slaves"])
 
     else:
-        @functools.wraps(test_function)
+        @functools.wraps(test)
         def test_wrapper(*args, **kwargs):
-            return run_test(test_function, lego_mark, *args, lego_manager=kwargs["slaves"])
+            return run_test(test, lego_mark, *args, lego_manager=kwargs["slaves"])
 
-    test_wrapper.pytestmark = test_function.pytestmark
-    item.obj = test_wrapper
+    test_wrapper.pytestmark = test.pytestmark
+    pyfuncitem.obj = test_wrapper
 
 
 def run_test(test_function, mark, lego_manager):
