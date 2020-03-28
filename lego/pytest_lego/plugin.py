@@ -7,7 +7,7 @@ import rpyc
 import rpyc.utils.classic
 from rpyc.utils.zerodeploy import DeployedServer
 
-import pytest_lego.slave_factory as slave_factory
+from pytest_lego import slave_factory
 from slaves import rpyc_classic
 
 MARK = "lego"
@@ -17,6 +17,10 @@ MARK = "lego"
 def slaves(request):
     """
     Provides the connection to the lego manager.
+    The 'slave' fixture doesn't provide slaves but provides a way
+    for our test wrapper to create slaves.
+    Using the lego manager API the test wrapper acquires the slaves and
+    provide them to the original test function.
     :return: RPyC connection to LegoManager service.
     """
     manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
