@@ -1,38 +1,41 @@
-import lego
 import pytest
 import asyncio
-import contextlib
-import functools
-
+import tetanus_lib
+import giraffe_lib
 
 class TetanusTestsSpec:
 
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
+        self._tetanus_lib = tetanus_lib.TetanusLib()
         self._giraffe = slaves['giraffe']
+        self._echo_port = 1337
 
     def setup_method(self):
-        self._giraffe.run_echo_server()
+        self._tetanus_lib.install(self._giraffe, self._echo_port)
 
     def teardown_method(self):
-        self._giraffe.stop_echo_server()
+        self._tetanus_lib.uninstall(self._giraffe)
 
     @pytest.mark.lego('zebra')
     def test_send_and_recv(self, slaves):
-        slaves['zebra'].send_and_recive()
+        slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
 
-    @pytest.mark.lego('4 zebra')
+    @pytest.mark.lego('zebra and elephant')
     def test_multi_send_and_recv(self, slaves):
-        asyncio.gather(slave.send_and_recive() for hostname, slave in slaves if hostname.startswith('zebra'))
+        asyncio.gather(slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
+            for slave in (slaves['zebra'], slaves['elephant']))
 
     @pytest.mark.lego('zebra')
     def test_monitor_send_and_recv(self, slaves):
-        with self._giraffe.monitor_logs():
-            slaves['zebra'].send_and_recive()
+        with self._giraffe.monitor_logs(giraffe_lib.EventHandler(), '.'):
+            slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
 
-    @pytest.mark.lego('4 zebra')
+    @pytest.mark.lego('zebra and elephant')
     def test_multi_monitor_send_and_receive(self, slaves):
-        with self._giraffe.monitor_logs():
-            asyncio.gather(slave.send_and_recive() for hostname, slave in slaves if hostname.startswith('zebra')
+        with self._giraffe.monitor_logs(giraffe_lib.EventHandler(), '.'):
+            asyncio.gather(slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
+            for slave in (slaves['zebra'], slaves['elephant']))
+
 
 

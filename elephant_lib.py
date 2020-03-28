@@ -8,9 +8,9 @@ import asyncio
 from contextlib import contextmanager
 
 
-class ZebraLib(lib.Lib):
+class ElephantLib(lib.Lib):
     def __init__(self, con):
-        super(ZebraLib, self).__init__(con)
+        super(ElephantLib, self).__init__(con)
 
     def send_packets(self, *args, **kwargs):
         r_sender = rpyc.async_(self._con.modules['scapy.all'].send)

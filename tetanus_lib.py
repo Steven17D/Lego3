@@ -2,30 +2,27 @@ import lib
 import rpyc
 import time
 import zebra_lib
+import giraffe_lib
 from scapy.all import *
 from contextlib import contextmanager
 
 
 class TetanusLib:
-    def __init__(self, zebra_lib, giraffe_libs):
-        self._zebra_lib = zebra_lib
-        self._giraffe_libs = giraffe_libs
 
-    @contextmanager
-    def run_echo_server(self):
+    def install(giraffe, port):
+        """Installs an echo server."""
+        
         def echo_packet(packet):
-            print(packet)
-            udp = self._zebra_lib._con.modules['scapy.all'].UDP
-            packet[udp].sport, packet[udp].dport = packet[udp].dport, packet[udp].sport
-            #self._zebra_lib.send_packets(packet)
-        with self._zebra_lib.sniff_packets(filter='udp and port 1337', prn=echo_packet):
-                yield
+            r_IP = giraffe.con.modules['scapy.all'].IP
+            r_UDP = giraffe.con.modules['scapy.all'].UDP
+            packet[r_IP].dst, packet[r_IP].src = packet[r_IP].src, packet[r_IP].dst
+            packet[r_UDP].dport, packet[r_UDP].sport = packet[r_UDP].sport, packet[r_UDP].dport
+            send(packet)
 
+        self._r_sniffer = giraffe.con.modules['scapy.all'].AsyncSnfifer(
+            filter=f'udp and port {port}', prn=echo_packet)
+        self.r_sniffer.start()
 
-if __name__ == '__main__':
-    c = rpyc.classic.connect('127.0.0.1')
-    t = TetanusLib(zebra_lib.ZebraLib(c), None)
-
-    with t.run_echo_server():
-        time.sleep(100)
+    def uninstall(giraffe):
+        self.r_sniffer.stop()
 
