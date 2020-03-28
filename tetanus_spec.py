@@ -15,7 +15,7 @@ class TetanusTestsSpec:
         self._tetanus_lib.install(self._giraffe, self._echo_port)
 
     def teardown_method(self):
-        self._tetanus_lib.uninstall(self._giraffe)
+        self._tetanus_lib.uninstall()
 
     @pytest.mark.lego('zebra')
     def test_send_and_recv(self, slaves):
