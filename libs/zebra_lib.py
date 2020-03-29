@@ -9,7 +9,7 @@ import asyncio
 import watchdog
 from contextlib import contextmanager
 from watchdog.observers import Observer
-from core_lib import CoreLib
+from libs.core_lib import CoreLib
 
 
 # Just for the test
