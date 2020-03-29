@@ -1,8 +1,15 @@
+"""
+Supply slaves to the plugin by acquiring them in the lego manager and wrapping in the appropriate library.
+"""
 import contextlib
 import importlib
 
 
 def get_library(lib_name):
+    """
+    Receives string which represents a library name.
+    Returns the library object by importing it.
+    """
     *module, lib_class = lib_name.split('.')
     return getattr(importlib.import_module('.'.join(module)), lib_class)
 

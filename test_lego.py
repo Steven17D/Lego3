@@ -17,12 +17,12 @@ async def test_b(slaves):
 
 class TestsSpecA:
     @pytest.mark.lego('giraffe')
-    def setup_class(self, slaves):
-        self._slaves = slaves
-        print(f"setup class with {self._slaves}")
+    def setup_class(cls, slaves):
+        cls._slaves = slaves
+        print(f"setup class with {cls._slaves}")
 
-    def teardown_class(self):
-        print(f"teardown class with {self._slaves}")
+    def teardown_class(cls):
+        print(f"teardown class with {cls._slaves}")
         
     def setup_method(self):
         print(f"setup method {self._slaves}")
@@ -41,13 +41,13 @@ class TestsSpecA:
 
 class TestsSpecB:
     @pytest.mark.lego('giraffe')
-    def setup_class(self, slaves):
-        self._slaves = slaves
-        print(f"setup class with {self._slaves}")
+    def setup_class(cls, slaves):
+        cls._slaves = slaves
+        print(f"setup class with {cls._slaves}")
 
-    def teardown_class(self):
-        print(f"teardown with {self._slaves}")
-        
+    def teardown_class(cls):
+        print(f"teardown with {cls._slaves}")
+
     def setup_method(self):
         print(f"setup method {self._slaves}")
 
@@ -64,6 +64,11 @@ class TestsSpecB:
 
 
 class TestsSpecWithoutSetupClass:
+    @pytest.mark.lego('giraffe')
+    def setup_class(cls, slaves):
+        cls._slaves = slaves
+        print(f"setup class with {cls._slaves}")
+
     def setup_method(self):
         print(f"setup method")
 
@@ -81,9 +86,9 @@ class TestsSpecWithoutSetupClass:
 
 class TestsSpecSetupClassWithoutTeardown:
     @pytest.mark.lego('giraffe')
-    def setup_class(self, slaves):
-        self._slaves = slaves
-        print(f"setup class with {self._slaves}")
+    def setup_class(cls, slaves):
+        cls._slaves = slaves
+        print(f"setup class with {cls._slaves}")
 
     def setup_method(self):
         print(f"setup method")
@@ -98,4 +103,3 @@ class TestsSpecSetupClassWithoutTeardown:
     @pytest.mark.lego('elephant')
     def test_b(self, slaves):
         print(f"Using: {slaves}")
-

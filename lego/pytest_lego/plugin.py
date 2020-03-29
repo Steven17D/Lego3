@@ -1,7 +1,8 @@
+"""
+Implementation of the pytest-lego plugin.
+"""
 import asyncio
 import functools
-import socket
-import plumbum
 import pytest
 import rpyc
 
@@ -27,11 +28,12 @@ def slaves(request):
 
 
 def pytest_configure(config):
-    # Verify inifile
+    """
+    Validates inifile and adds the lego mark.
+    """
     assert MARK in config.inicfg.config.sections, f"Missing {MARK} section in inifile"
     assert "resouce_manager" in config.inicfg.config.sections[MARK], ""
 
-    # Add the lego mark
     config.addinivalue_line(
         "markers",
         "lego: Lego mark used in order to supply slaves by query"
@@ -41,9 +43,9 @@ def pytest_configure(config):
 @pytest.mark.tryfirst
 def pytest_fixture_setup(fixturedef, request):
     """
-    Addes the ability to add lego marks to `setup_class` functions in test classes.
+    Adds the ability to add lego marks to `setup_class` functions in test classes.
     """
-    if '_Class__pytest_setup_class' != fixturedef.argname:
+    if fixturedef.argname != '_Class__pytest_setup_class':
         return
 
     test_class = request.cls
@@ -58,10 +60,10 @@ def pytest_fixture_setup(fixturedef, request):
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
         lego_manager, *_ = request._fixture_defs["slaves"].cached_result
-        with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
-            test_class.setup_class(test_class, slaves)
+        with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as wrapped_slaves:
+            test_class.setup_class(test_class, wrapped_slaves, *args, **kwargs)
             try:
-                yield 
+                yield
             finally:
                 teardown_class = getattr(test_class, "teardown_class", None)
                 if teardown_class is not None:
@@ -99,10 +101,12 @@ def pytest_pyfunc_call(pyfuncitem):
 
 
 def run_test(test_function, mark, lego_manager):
-    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
-        return test_function(slaves)
+    """ Runs the test function with wrapped slaves """
+    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as wrapped_slaves:
+        return test_function(wrapped_slaves)
 
 
 async def async_run_test(test_function, mark, lego_manager):
-    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
-        return await test_function(slaves)
+    """ Runs the test function with wrapped slaves and await it """
+    with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as wrapped_slaves:
+        return await test_function(wrapped_slaves)
