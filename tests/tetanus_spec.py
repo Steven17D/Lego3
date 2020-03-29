@@ -3,8 +3,7 @@
 import pytest
 import asyncio
 
-import tetanus_lib
-import giraffe_lib
+import libs.tetanus_lib
 
 
 class TetanusTestsSpec:
@@ -12,7 +11,7 @@ class TetanusTestsSpec:
 
     @pytest.mark.lego('giraffe')
     def setup_class(self, slaves):
-        self._tetanus_lib = tetanus_lib.TetanusLib()
+        self._tetanus_lib = libs.tetanus_lib.TetanusLib()
         self._giraffe = slaves['giraffe']
         self._echo_port = 1337
 
