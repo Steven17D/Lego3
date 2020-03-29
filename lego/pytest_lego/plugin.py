@@ -21,7 +21,7 @@ def slaves(request):
     provide them to the original test function.
     :return: RPyC connection to LegoManager service.
     """
-    manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
+    manager = request.config.inicfg.config.sections[MARK]["lego_manager"]
     lego_manager = rpyc.connect(host=manager, port=18861)
     request.addfinalizer(lego_manager.close)
     return lego_manager
@@ -32,7 +32,7 @@ def pytest_configure(config):
     Validates inifile and adds the lego mark.
     """
     assert MARK in config.inicfg.config.sections, f"Missing {MARK} section in inifile"
-    assert "resouce_manager" in config.inicfg.config.sections[MARK], ""
+    assert "lego_manager" in config.inicfg.config.sections[MARK], "Missing lego_manager hostname in inifile"
 
     config.addinivalue_line(
         "markers",
