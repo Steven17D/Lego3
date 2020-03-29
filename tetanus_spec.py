@@ -23,21 +23,21 @@ class TetanusTestsSpec:
         self._tetanus_lib.uninstall()
 
     @pytest.mark.lego('zebra')
-    def test_send_and_recv(self, slaves):
-        slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
+    async def test_send_and_recv(self, slaves):
+        await slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
-    def test_multi_send_and_recv(self, slaves):
-        asyncio.gather(slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
+    async def test_multi_send_and_recv(self, slaves):
+        asyncio.gather(await slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
                        for slave in (slaves['zebra'], slaves['elephant']))
 
     @pytest.mark.lego('zebra')
-    def test_monitor_send_and_recv(self, slaves):
+    async def test_monitor_send_and_recv(self, slaves):
         with self._giraffe.monitor_logs(giraffe_lib.EventHandler(), '.'):
-            slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
+            await slaves['zebra'].send_and_recive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
-    def test_multi_monitor_send_and_receive(self, slaves):
+    async def test_multi_monitor_send_and_receive(self, slaves):
         with self._giraffe.monitor_logs(giraffe_lib.EventHandler(), '.'):
-            asyncio.gather(slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
+            asyncio.gather(await slave.send_and_recive(self._giraffe.get_ip(), self._echo_port)
                            for slave in (slaves['zebra'], slaves['elephant']))
