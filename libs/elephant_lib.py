@@ -1,4 +1,4 @@
-"""Zebra lib is API to elephant component."""
+"""Elephant lib is API to elephant component."""
 
 import random
 import asyncio
@@ -6,8 +6,8 @@ import asyncio
 import core_lib
 
 
-class ZebraLib(core_lib.CoreLib):
-    """An extended library for Zebra component."""
+class ElephantLib(core_lib.CoreLib):
+    """An extended library for Elephant component."""
 
     async def send_and_recive(self, dst_ip: str, dst_port: int, count: int = 5):
         """Sends packets and receive them back.

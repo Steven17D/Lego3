@@ -47,11 +47,3 @@ class CoreLib:
 
     def reboot(self):
         return self._conn.modules.os.system("reboot -f")
-
-
-class Linux(CoreLib):
-    pass
-
-
-class Windows(CoreLib):
-    pass
