@@ -2,7 +2,7 @@
 
 import scapy
 
-import giraffe_lib
+import libs.giraffe_lib
 
 class TetanusLib:
     """Library for Tetanus functionality."""
@@ -10,7 +10,7 @@ class TetanusLib:
     def __init__(self):
         self._r_sniffer = None
 
-    def install(self, giraffe: giraffe_lib.GiraffeLib, port: int):
+    def install(self, giraffe: libs.giraffe_lib.GiraffeLib, port: int):
         """Installs an echo server.
 
         Args:

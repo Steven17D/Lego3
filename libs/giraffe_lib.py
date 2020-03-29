@@ -1,8 +1,8 @@
 """Elephant lib is API to elephant component."""
-import watchdog
+import watchdog.events
 import contextlib
 
-import core_lib
+import libs.core_lib
 
 
 # Just for the test
@@ -19,7 +19,7 @@ class EventHandler(watchdog.events.FileSystemEventHandler):
         assert event.src_file != 'a.txt'
 
 
-class GiraffeLib(core_lib.CoreLib):
+class GiraffeLib(libs.core_lib.CoreLib):
     """An extended library for Giraffe component."""
 
     @contextlib.contextmanager
