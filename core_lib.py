@@ -1,20 +1,49 @@
-"""A core library moudle."""
+"""
+The lib contains all the logic
+"""
 import rpyc
+import plumbum
+from rpyc.utils.zerodeploy import DeployedServer
 
 
 class CoreLib:
-    """Core Library to wrap slave connection."""
+    """
+    Wrapper for RPyC connection.
+    Provides simple API which is generic for all RPyC connections.
+    In order to extened the API implement a wrapping Lib.
+    """
 
-    def __init__(self, con: rpyc.core.protocol.Connection):
-        self._con = con
+    __slots__ = ['_conn']
+
+    def __init__(self, hostname):
+        try:
+            self._conn = rpyc.classic.connect(hostname, keepalive=True)
+        except ConnectionRefusedError:
+            with plumbum.SshMachine(hostname, user="root", password="password") as machine:
+                with DeployedServer(machine) as server:
+                    self._conn = server.classic_connect()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exec_type, value, traceback):
+        self._conn.close()
 
     @property
-    def con(self) -> rpyc.core.protocol.Connection:
-        """Gets the lib RPyC connection."""
-        return self._con
+    def connection(self):
+        return self._conn
 
-    def get_ip(self) -> str:
-        """Gets the IP of the component the slave running on."""
+    def getpid(self):
+        return self._conn.modules.os.getpid()
 
-        hostname = self._con.modules['socket'].gethostname()
-        return self._con.modules['socket'].gethostbyname(hostname)
+    def send_packet(self, addr, data):
+        rsocket = self._conn.modules["socket"]
+        remote_socket = rsocket.socket()
+        remote_socket.sendto(addr, data)
+        remote_socket.close()
+
+    def run_command(self, command):
+        return self._conn.modules["subprocess"].check_output(command.split())
+
+    def reboot(self):
+        return self._conn.modules.os.system("reboot -f")
