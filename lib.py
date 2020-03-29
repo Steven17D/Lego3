@@ -46,7 +46,7 @@ class CoreLib:
         return self._conn.modules["subprocess"].check_output(command.split())
 
     def reboot(self):
-        return self._conn.modules.os.system("reboot")
+        return self._conn.modules.os.system("reboot -f")
 
 
 class Linux(CoreLib):
