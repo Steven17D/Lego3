@@ -44,11 +44,19 @@ class LegoManager(rpyc.Service):
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation
-        return [(query, "libs.core_lib.CoreLib")]
+
+        hostname_to_lib = {
+            'zebra': 'libs.zebra_lib.ZebraLib',
+            'giraffe': 'libs.giraffe_lib.GiraffeLib',
+            'elephant': 'libs.elephant_lib.ElephantLib'
+        }
+        hostnames = (hostname.strip() for hostname in query.split('and'))
+
+        return [(hostname, hostname_to_lib[hostname]) for hostname in hostnames]
 
     def exposed_acquire(self, query, exclusive):
         return self.allocation(self.run_query(query))
-        
+
 
 if __name__ == "__main__":
     rpyc.lib.setup_logger()

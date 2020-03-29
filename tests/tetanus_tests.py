@@ -5,15 +5,17 @@ import asyncio
 
 import libs.tetanus_lib
 
+pytest_plugins = 'lego.pytest_lego.plugin'
 
-class TetanusTestsSpec:
+
+class TestsSpecTetanus:
     """A Tetanus spec tests."""
 
     @pytest.mark.lego('giraffe')
-    def setup_class(self, slaves):
-        self._tetanus_lib = libs.tetanus_lib.TetanusLib()
-        self._giraffe = slaves['giraffe']
-        self._echo_port = 1337
+    def setup_class(cls, slaves):
+        cls._tetanus_lib = libs.tetanus_lib.TetanusLib()
+        cls._giraffe = slaves['giraffe']
+        cls._echo_port = 1337
 
     def setup_method(self):
         self._tetanus_lib.install(self._giraffe, self._echo_port)
