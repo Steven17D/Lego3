@@ -44,7 +44,7 @@ class LegoManager(rpyc.Service):
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation
-        return [(query, "lib.CoreLib")]
+        return [(query, "core_lib.CoreLib")]
 
     def exposed_acquire(self, query, exclusive):
         return self.allocation(self.run_query(query))
