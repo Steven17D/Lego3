@@ -1,38 +1,44 @@
-import sys
-import lib
-import rpyc
-import time
-import socket
-import asyncio
+"""Elephant lib is API to elephant component."""
 import watchdog
-from contextlib import contextmanager
-from watchdog.observers import Observer
+import contextlib
+
+import core_lib
+
 
 # Just for the test
 class EventHandler(watchdog.events.FileSystemEventHandler):
-    def on_modified(self, event):
-        print(event)
+    """Event handler called on every incoming file system event."""
+
+    def on_modified(self, event: watchdog.events.FileModifiedEvent):
+        """Called when file has modified.
+
+        Args:
+            event: File modified event.
+        """
+
+        assert event.src_file != 'a.txt'
 
 
-class GiraffeLib(lib.Lib):
-    def __init__(self, con):
-        super(GiraffeLib, self).__init__(con)
-
-    @contextmanager
+class GiraffeLib(core_lib.CoreLib):
+    """An extended library for Giraffe component."""
+    @contextlib.contextmanager
     def monitor_logs(
             self,
             event_handler: watchdog.events.FileSystemEventHandler,
-            files: list
+            directory: str
         ):
+        """Monitor specific directory to not change.
+
+        Args:
+            event_handler: Event handler that called with every
+                incoming file system event.
+            directory: Diractory to watch on.
+        """
+
         r_observer = self._con.modules['watchdog.observers'].Observer()
-        for file in files:
-            r_observer.schedule(event_handler, file)
+        r_observer.schedule(event_handler, directory)
         r_observer.start()
         try:
             yield r_observer
         finally:
             r_observer.stop()
-
-    def get_ip(self):
-        r_hostname = self._con.modules['socket'].gethostname()
-        return self._con.modules['socket'].gethostbyname(r_hostname)

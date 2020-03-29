@@ -12,3 +12,9 @@ class CoreLib:
     def con(self) -> rpyc.core.protocol.Connection:
         """Gets the lib RPyC connection."""
         return self._con
+
+    def get_ip(self) -> str:
+        """Gets the IP of the component the slave running on."""
+
+        hostname = self._con.modules['socket'].gethostname()
+        return self._con.modules['socket'].gethostbyname(hostname)
