@@ -1,3 +1,5 @@
+"""Tetanus spec tests."""
+
 import pytest
 import asyncio
 import tetanus_lib

@@ -21,6 +21,7 @@ class EventHandler(watchdog.events.FileSystemEventHandler):
 
 class GiraffeLib(core_lib.CoreLib):
     """An extended library for Giraffe component."""
+
     @contextlib.contextmanager
     def monitor_logs(
             self,
