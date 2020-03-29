@@ -1,6 +1,6 @@
 """Library for Tetanus functionality."""
 
-import scapy
+import scapy.layers.inet
 
 import libs.giraffe_lib
 
@@ -25,13 +25,13 @@ class TetanusLib:
                 packet: The received packet.
             """
 
-            r_ip = giraffe.con.modules['scapy.all'].IP
-            r_udp = giraffe.con.modules['scapy.all'].UDP
+            r_ip = giraffe.connection.modules['scapy.all'].IP
+            r_udp = giraffe.connection.modules['scapy.all'].UDP
             packet[r_ip].dst, packet[r_ip].src = packet[r_ip].src, packet[r_ip].dst
             packet[r_udp].dport, packet[r_udp].sport = packet[r_udp].sport, packet[r_udp].dport
-            giraffe.con.modules['scapy.all'].send(packet)
+            giraffe.connection.modules['scapy.all'].send(packet)
 
-        self._r_sniffer = giraffe.con.modules['scapy.all'].AsyncSnfifer(
+        self._r_sniffer = giraffe.connection.modules['scapy.all'].AsyncSniffer(
             filter=f'udp and port {port}', prn=echo_packet)
         self._r_sniffer.start()
 
