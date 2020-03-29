@@ -2,6 +2,8 @@ import pytest
 import time
 import asyncio
 
+pytest_plugins = 'lego.pytest_lego.plugin'
+
 
 @pytest.mark.lego("giraffe", exclusive=False)
 def test_a(slaves):
