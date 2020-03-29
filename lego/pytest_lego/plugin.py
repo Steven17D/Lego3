@@ -4,11 +4,8 @@ import socket
 import plumbum
 import pytest
 import rpyc
-import rpyc.utils.classic
-from rpyc.utils.zerodeploy import DeployedServer
 
 from pytest_lego import slave_factory
-from slaves import rpyc_classic
 
 MARK = "lego"
 
@@ -24,31 +21,9 @@ def slaves(request):
     :return: RPyC connection to LegoManager service.
     """
     manager = request.config.inicfg.config.sections[MARK]["resouce_manager"]
-    try:
-        lego_manager = rpyc.connect(host=manager, port=18861)
-    except ConnectionRefusedError:
-        with plumbum.SshMachine(manager, user="root", password="password") as machine:
-            with DeployedServer(machine) as server:
-                with server.classic_connect() as connection:
-                    spawn_lego_manager(connection)
-
-        lego_manager = rpyc.connect(host=manager, port=18861)
-
+    lego_manager = rpyc.connect(host=manager, port=18861)
     request.addfinalizer(lego_manager.close)
     return lego_manager
-
-
-def spawn_lego_manager(connection):
-    # Upload necessary dependencies
-    rpyc.utils.classic.upload_package(connection, rpyc, '/root/rpyc')
-    rpyc.utils.classic.upload_package(connection, plumbum, '/root/plumbum')
-    rpyc.utils.classic.upload_package(connection, rpyc_classic, '/root/slaves')
-    # Start the lego_manager python process
-    ros = connection.modules.os
-    args = ['python', '/root/slaves/lego_manager.py', '--host', '0.0.0.0']
-    env = {"PYTHONPATH": "/root/"}
-    # TODO: Make it work
-    ros.spawnvpe(ros.P_NOWAIT, 'python', args, env)
 
 
 def pytest_configure(config):
@@ -63,16 +38,36 @@ def pytest_configure(config):
     )
 
 
-def pytest_generate_tests(metafunc):
+@pytest.mark.tryfirst
+def pytest_fixture_setup(fixturedef, request):
     """
-    Official: Generate (multiple) parametrized calls to a test function.
-    Used in order to verify lego test function signature to have the 'slaves' fixture.
-    :param metafunc: _pytest.python.Metafunc
-    :return:
+    Addes the ability to add lego marks to `setup_class` functions in test classes.
     """
-    lego_mark = metafunc.definition.get_closest_marker(MARK)
-    if lego_mark is not None:
-        assert "slaves" in metafunc.fixturenames, "Lego test must use fixture 'slaves'"
+    if '_Class__pytest_setup_class' != fixturedef.argname:
+        return
+
+    test_class = request.cls
+    marks = getattr(test_class.setup_class, "pytestmark", None)
+    if marks is None:
+        return
+
+    mark = next(mark for mark in marks if MARK == mark.name)
+    if mark is None:
+        return
+
+    @functools.wraps(fixturedef.func)
+    def setup_class_wrapper(*args, **kwargs):
+        lego_manager, *_ = request._fixture_defs["slaves"].cached_result
+        with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as slaves:
+            test_class.setup_class(test_class, slaves)
+            try:
+                yield 
+            finally:
+                teardown_class = getattr(test_class, "teardown_class", None)
+                if teardown_class is not None:
+                    teardown_class(test_class)
+
+    fixturedef.func = setup_class_wrapper
 
 
 @pytest.mark.tryfirst

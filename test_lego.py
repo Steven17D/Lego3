@@ -6,10 +6,96 @@ import asyncio
 @pytest.mark.lego("giraffe", exclusive=False)
 def test_a(slaves):
     print(f"Slaves a: {slaves}")
-    time.sleep(1)
+    time.sleep(0.25)
 
 
 @pytest.mark.lego("elephant")
 async def test_b(slaves):
     print(f"Slaves b: {slaves}")
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.25)
+
+
+class TestsSpecA:
+    @pytest.mark.lego('giraffe')
+    def setup_class(self, slaves):
+        self._slaves = slaves
+        print(f"setup class with {self._slaves}")
+
+    def teardown_class(self):
+        print(f"teardown class with {self._slaves}")
+        
+    def setup_method(self):
+        print(f"setup method {self._slaves}")
+
+    def teardown_method(self):
+        print(f"teardown method {self._slaves}")
+
+    @pytest.mark.lego('zebra')
+    def test_a(self, slaves):
+        print(f"Using: {slaves} and {self._slaves}")
+
+    @pytest.mark.lego('elephant')
+    def test_b(self, slaves):
+        print(f"Using: {slaves} and {self._slaves}")
+
+
+class TestsSpecB:
+    @pytest.mark.lego('giraffe')
+    def setup_class(self, slaves):
+        self._slaves = slaves
+        print(f"setup class with {self._slaves}")
+
+    def teardown_class(self):
+        print(f"teardown with {self._slaves}")
+        
+    def setup_method(self):
+        print(f"setup method {self._slaves}")
+
+    def teardown_method(self):
+        print(f"teardown method {self._slaves}")
+
+    @pytest.mark.lego('zebra')
+    def test_a(self, slaves):
+        print(f"Using: {slaves} and {self._slaves}")
+
+    @pytest.mark.lego('elephant')
+    def test_b(self, slaves):
+        print(f"Using: {slaves} and {self._slaves}")
+
+
+class TestsSpecWithoutSetupClass:
+    def setup_method(self):
+        print(f"setup method")
+
+    def teardown_method(self):
+        print(f"teardown method")
+
+    @pytest.mark.lego('zebra')
+    def test_a(self, slaves):
+        print(f"Using: {slaves}")
+
+    @pytest.mark.lego('elephant')
+    def test_b(self, slaves):
+        print(f"Using: {slaves}")
+
+
+class TestsSpecSetupClassWithoutTeardown:
+    @pytest.mark.lego('giraffe')
+    def setup_class(self, slaves):
+        self._slaves = slaves
+        print(f"setup class with {self._slaves}")
+
+    def setup_method(self):
+        print(f"setup method")
+
+    def teardown_method(self):
+        print(f"teardown method")
+
+    @pytest.mark.lego('zebra')
+    def test_a(self, slaves):
+        print(f"Using: {slaves}")
+
+    @pytest.mark.lego('elephant')
+    def test_b(self, slaves):
+        print(f"Using: {slaves}")
+
