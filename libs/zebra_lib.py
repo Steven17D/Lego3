@@ -3,10 +3,10 @@
 import random
 import asyncio
 
-import core_lib
+import libs.core_lib
 
 
-class ZebraLib(core_lib.CoreLib):
+class ZebraLib(libs.core_lib.CoreLib):
     """An extended library for Zebra component."""
 
     async def send_and_recive(self, dst_ip: str, dst_port: int, count: int = 5):
@@ -20,12 +20,12 @@ class ZebraLib(core_lib.CoreLib):
 
         src_port = random.randint(10000, 20000)
         packet = (
-            self._con.modules['scapy.all'].IP(dst=dst_ip) /
-            self._con.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
+            self.connection.modules['scapy.all'].IP(dst=dst_ip) /
+            self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
             'Lego3 is great'
         )
-        r_send = self._con.modules['scapy.all'].send
-        r_sniffer = self._con.modules['scapy.all'].AsyncSniffer(
+        r_send = self.connection.modules['scapy.all'].send
+        r_sniffer = self.connection.modules['scapy.all'].AsyncSniffer(
             filter=f'udp and src port {dst_port} and dst port {src_port}', count=count)
 
         r_sniffer.start()

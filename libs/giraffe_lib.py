@@ -36,7 +36,7 @@ class GiraffeLib(libs.core_lib.CoreLib):
             directory: Diractory to watch on.
         """
 
-        r_observer = self._con.modules['watchdog.observers'].Observer()
+        r_observer = self.connection.modules['watchdog.observers'].Observer()
         r_observer.schedule(event_handler, directory)
         r_observer.start()
         try:
