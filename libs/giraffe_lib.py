@@ -5,20 +5,6 @@ import contextlib
 import libs.core_lib
 
 
-# Just for the test
-class EventHandler(watchdog.events.FileSystemEventHandler):
-    """Event handler called on every incoming file system event."""
-
-    def on_modified(self, event: watchdog.events.FileModifiedEvent):
-        """Called when file has modified.
-
-        Args:
-            event: File modified event.
-        """
-
-        assert event.src_file != 'a.txt'
-
-
 class GiraffeLib(libs.core_lib.CoreLib):
     """An extended library for Giraffe component."""
 
@@ -43,3 +29,7 @@ class GiraffeLib(libs.core_lib.CoreLib):
             yield r_observer
         finally:
             r_observer.stop()
+            r_observer.join()
+            if not r_observer.event_queue.empty():
+                for event in r_observer.event_queue.get():
+                    assert 'log.txt' not in event.src_path

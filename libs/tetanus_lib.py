@@ -5,6 +5,10 @@ import scapy.layers.inet
 import libs.giraffe_lib
 
 TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
+BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
+BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
+
+TOOL = TOOL
 
 
 class TetanusLib:
@@ -31,5 +35,8 @@ class TetanusLib:
             giraffe: Component API to uninstall tool.
         """
 
-        giraffe.connection.modules.os.kill(self._tool_pid, 9)
-        giraffe.connection.modules.os.kill(self._tool_pid + 1, 9)
+        try:
+            giraffe.connection.modules.os.kill(self._tool_pid, 9)
+            giraffe.connection.modules.os.kill(self._tool_pid + 1, 9)
+        except ProcessLookupError:
+            pass

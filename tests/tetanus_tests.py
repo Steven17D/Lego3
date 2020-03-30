@@ -38,12 +38,12 @@ class TestsSpecTetanus:
     @pytest.mark.lego('zebra')
     def test_monitor_send_and_recv(self, slaves):
         zebra, *_ = slaves
-        with self._giraffe.monitor_logs(libs.giraffe_lib.EventHandler(), '.'):
+        with self._giraffe.monitor_logs(None, '.'):
             zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
     def test_multi_monitor_send_and_receive(self, slaves):
         zebra, elephant, *_ = slaves
-        with self._giraffe.monitor_logs(libs.giraffe_lib.EventHandler(), '.'):
+        with self._giraffe.monitor_logs(None, '.'):
             for slave in (zebra, elephant):
                 slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
