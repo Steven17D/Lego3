@@ -18,18 +18,19 @@ class ZebraLib(libs.core_lib.CoreLib):
             count: The number of packets to send.
         """
 
+        payload = 'Lego3 is great'
         src_port = random.randint(10000, 20000)
+        R_Raw = self.connection.modules['scapy.all'].Raw
         packet = (
             self.connection.modules['scapy.all'].IP(dst=dst_ip) /
             self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
-            'Lego3 is great'
+            payload
         )
-        r_send = self.connection.modules['scapy.all'].send
-        r_sniffer = self.connection.modules['scapy.all'].AsyncSniffer(
-            filter=f'udp and src port {dst_port} and dst port {src_port}', count=count)
+        r_sr = self.connection.modules['scapy.all'].sr
 
-        r_sniffer.start()
-        r_send(packet, count=count)
-        await asyncio.sleep(3)
-        packets = r_sniffer.stop()
+        packets, _ = r_sr([packet] * count)
+
         assert len(packets) == count
+        for _, response in packets:
+            assert response[R_Raw].load.decode() == payload
+
