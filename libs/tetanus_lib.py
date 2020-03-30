@@ -1,7 +1,5 @@
 """Library for Tetanus functionality."""
 
-import scapy.layers.inet
-
 import libs.giraffe_lib
 
 

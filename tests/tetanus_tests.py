@@ -1,7 +1,7 @@
 """Tetanus spec tests."""
 
-import pytest
 import asyncio
+import pytest
 
 import libs.giraffe_lib
 import libs.tetanus_lib
@@ -30,11 +30,17 @@ class TestsSpecTetanus:
 
     @pytest.mark.lego('zebra')
     async def test_send_and_recv(self, slaves):
+        "The test send packets and expect them back."""
+
         zebra, *_ = slaves
         await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_send_and_recv(self, slaves):
+        """The test send packets from multiple components and
+            expect them back.
+        """
+
         tasks = []
 
         for slave in slaves:
@@ -45,12 +51,20 @@ class TestsSpecTetanus:
 
     @pytest.mark.lego('zebra')
     async def test_monitor_send_and_recv(self, slaves):
+        """The test send packets and expect them back while validating no bad
+            logs written.
+        """
+
         zebra, *_ = slaves
         with self._giraffe.monitor_logs(None, '.'):
             await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_monitor_send_and_receive(self, slaves):
+        """The test send packets from multiple components and
+            expect them back, while validating no bad logs written.
+        """
+
         tasks = []
 
         for slave in slaves:
@@ -59,4 +73,3 @@ class TestsSpecTetanus:
 
         with self._giraffe.monitor_logs(None, '.'):
             await asyncio.wait(tasks)
-

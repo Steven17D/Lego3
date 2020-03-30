@@ -1,6 +1,6 @@
 """Elephant lib is API to elephant component."""
-import watchdog.events
 import contextlib
+import watchdog.events
 
 import libs.core_lib
 

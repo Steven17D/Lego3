@@ -1,8 +1,8 @@
 """Zebra lib is API to zebra component."""
 
-import rpyc
-import random
 import asyncio
+import random
+import rpyc
 
 import libs.core_lib
 
@@ -38,4 +38,3 @@ class ZebraLib(libs.core_lib.CoreLib):
         assert len(unanswered) == 0
         for i in range(count):
             assert answered[i][1].load.decode() == payload
-
