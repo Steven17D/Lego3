@@ -8,6 +8,10 @@ import libs.tetanus_lib
 
 pytest_plugins = 'lego.pytest_lego.plugin'
 
+TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
+BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
+BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
+
 
 class TestsSpecTetanus:
     """A Tetanus spec tests."""
@@ -19,7 +23,7 @@ class TestsSpecTetanus:
         cls._echo_port = 1337
 
     def setup_method(self):
-        self._tetanus_lib.install(self._giraffe, self._echo_port)
+        self._tetanus_lib.install(self._giraffe, TOOL, self._echo_port)
 
     def teardown_method(self):
         self._tetanus_lib.uninstall(self._giraffe)
