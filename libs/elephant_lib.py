@@ -1,7 +1,6 @@
 """Elephant lib is API to elephant component."""
 
 import random
-import asyncio
 
 import libs.core_lib
 
@@ -9,7 +8,7 @@ import libs.core_lib
 class ElephantLib(libs.core_lib.CoreLib):
     """An extended library for Elephant component."""
 
-    async def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
+    def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
         """Sends packets and receive them back.
 
         Args:
