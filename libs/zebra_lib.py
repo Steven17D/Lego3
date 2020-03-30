@@ -19,17 +19,18 @@ class ZebraLib(libs.core_lib.CoreLib):
 
         payload = 'Lego3 is great'
         src_port = random.randint(10000, 20000)
-        R_Raw = self.connection.modules['scapy.all'].Raw
         packet = (
             self.connection.modules['scapy.all'].IP(dst=dst_ip) /
             self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
-            payload
+            self.connection.modules['scapy.all'].Raw(load=payload)
         )
-        r_sr = self.connection.modules['scapy.all'].sr
+        r_srloop = self.connection.modules['scapy.all'].srloop
 
-        packets, _ = r_sr([packet] * count)
+        answered, unanswered = r_srloop(packet, filter=f'udp and dst port {src_port}',
+                           timeout=2, count=count)
 
-        assert len(packets) == count
-        for _, response in packets:
-            assert response[R_Raw].load.decode() == payload
+        assert len(answered) == count
+        assert len(unanswered) == 0
+        for i in range(count):
+            assert answered[i][1].load.decode() == payload
 
