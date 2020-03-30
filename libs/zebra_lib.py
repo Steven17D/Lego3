@@ -8,7 +8,7 @@ import libs.core_lib
 class ZebraLib(libs.core_lib.CoreLib):
     """An extended library for Zebra component."""
 
-    def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
+    async def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
         """Sends packets and receive them back.
 
         Args:

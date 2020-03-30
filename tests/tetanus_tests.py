@@ -31,23 +31,23 @@ class TestsSpecTetanus:
     @pytest.mark.lego('zebra')
     async def test_send_and_recv(self, slaves):
         zebra, *_ = slaves
-        zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+        await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_send_and_recv(self, slaves):
         zebra, elephant, *_ = slaves
         for slave in (zebra, elephant):
-                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+            await slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra')
     async def test_monitor_send_and_recv(self, slaves):
         zebra, *_ = slaves
         with self._giraffe.monitor_logs(None, '.'):
-            zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+            await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_monitor_send_and_receive(self, slaves):
         zebra, elephant, *_ = slaves
         with self._giraffe.monitor_logs(None, '.'):
             for slave in (zebra, elephant):
-                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+                await slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
