@@ -38,4 +38,4 @@ class TetanusLib:
     def uninstall(self):
         """Uninstall the echo server."""
 
-        self._r_sniffer.stop()
+        self._r_sniffer.join(0)

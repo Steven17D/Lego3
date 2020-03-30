@@ -47,3 +47,7 @@ class CoreLib:
 
     def reboot(self):
         return self._conn.modules.os.system("reboot -f")
+
+    def get_ip(self):
+        hostname = self._conn.modules['socket'].gethostname()
+        return self._conn.modules['socket'].gethostbyname(hostname)
