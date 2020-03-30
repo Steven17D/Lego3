@@ -4,11 +4,14 @@ import scapy.layers.inet
 
 import libs.giraffe_lib
 
+TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
+
+
 class TetanusLib:
     """Library for Tetanus functionality."""
 
     def __init__(self):
-        self._r_sniffer = None
+        self._tool_pid = -1
 
     def install(self, giraffe: libs.giraffe_lib.GiraffeLib, port: int):
         """Installs an echo server.
@@ -18,24 +21,15 @@ class TetanusLib:
             port: Port to echo on.
         """
 
-        def echo_packet(packet: scapy.layers.inet.IP):
-            """Echo the recive packet back.
+        r_popen = giraffe.connection.modules['subprocess'].Popen
+        self._tool_pid = r_popen(TOOL.format(port), shell=True).pid
 
-            Args:
-                packet: The received packet.
-            """
+    def uninstall(self, giraffe):
+        """Uninstall the echo server.
 
-            r_ip = giraffe.connection.modules['scapy.all'].IP
-            r_udp = giraffe.connection.modules['scapy.all'].UDP
-            packet[r_ip].dst, packet[r_ip].src = packet[r_ip].src, packet[r_ip].dst
-            packet[r_udp].dport, packet[r_udp].sport = packet[r_udp].sport, packet[r_udp].dport
-            giraffe.connection.modules['scapy.all'].send(packet)
+        Args:
+            giraffe: Component API to uninstall tool.
+        """
 
-        self._r_sniffer = giraffe.connection.modules['scapy.all'].AsyncSniffer(
-            filter=f'udp and port {port}', prn=echo_packet)
-        self._r_sniffer.start()
-
-    def uninstall(self):
-        """Uninstall the echo server."""
-
-        self._r_sniffer.join(0)
+        giraffe.connection.modules.os.kill(self._tool_pid, 9)
+        giraffe.connection.modules.os.kill(self._tool_pid + 1, 9)
