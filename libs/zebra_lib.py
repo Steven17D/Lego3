@@ -1,6 +1,8 @@
-"""Zebra lib is API to elephant component."""
+"""Zebra lib is API to zebra component."""
 
+import rpyc
 import random
+import asyncio
 
 import libs.core_lib
 
@@ -24,10 +26,13 @@ class ZebraLib(libs.core_lib.CoreLib):
             self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
             self.connection.modules['scapy.all'].Raw(load=payload)
         )
-        r_srloop = self.connection.modules['scapy.all'].srloop
+        r_srloop = rpyc.async_(self.connection.modules['scapy.all'].srloop)
 
-        answered, unanswered = r_srloop(packet, filter=f'udp and dst port {src_port}',
-                           timeout=2, count=count)
+        packets = r_srloop(packet, filter=f'udp and dst port {src_port}', timeout=2, count=count)
+
+        await asyncio.sleep(0)
+
+        answered, unanswered = packets.value
 
         assert len(answered) == count
         assert len(unanswered) == 0

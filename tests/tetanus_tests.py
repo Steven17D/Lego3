@@ -35,9 +35,13 @@ class TestsSpecTetanus:
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_send_and_recv(self, slaves):
-        zebra, elephant, *_ = slaves
-        for slave in (zebra, elephant):
-            await slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+        tasks = []
+
+        for slave in slaves:
+            tasks.append(asyncio.ensure_future(
+                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
+
+        await asyncio.wait(tasks)
 
     @pytest.mark.lego('zebra')
     async def test_monitor_send_and_recv(self, slaves):
@@ -47,7 +51,12 @@ class TestsSpecTetanus:
 
     @pytest.mark.lego('zebra and elephant')
     async def test_multi_monitor_send_and_receive(self, slaves):
-        zebra, elephant, *_ = slaves
+        tasks = []
+
+        for slave in slaves:
+            tasks.append(asyncio.ensure_future(
+                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
+
         with self._giraffe.monitor_logs(None, '.'):
-            for slave in (zebra, elephant):
-                await slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)
+            await asyncio.wait(tasks)
+
