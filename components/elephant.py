@@ -1,6 +1,7 @@
 """Elephant lib is API to elephant component."""
 
 import asyncio
+import functools
 import random
 import rpyc
 
@@ -19,22 +20,23 @@ class Elephant(components.core.Core):
             count: The number of packets to send.
         """
 
-        payload = 'Lego3 is great'
+        executor = None
         received_index = 1
+        payload = 'Lego3 is great'
         src_port = random.randint(10000, 20000)
+
         packet = (
             self.connection.modules['scapy.all'].IP(dst=dst_ip) /
             self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
             self.connection.modules['scapy.all'].Raw(load=payload)
         )
-        r_srloop = rpyc.async_(self.connection.modules['scapy.all'].srloop)
 
-        packets = r_srloop(packet, filter=f'udp and dst port {src_port}', timeout=2, count=count)
+        r_srloop = self.connection.modules['scapy.all'].srloop
+        partial_r_srloop = functools.partial(r_srloop, packet,
+                filter=f'udp and dst port {src_port}', timeout=1, count=count)
 
-        # Pass control to main events loop.
-        await asyncio.sleep(0)
-
-        answered, unanswered = packets.value
+        loop = asyncio.get_running_loop()
+        answered, unanswered = await loop.run_in_executor(executor, partial_r_srloop)
 
         assert len(answered) == count
         assert len(unanswered) == 0
