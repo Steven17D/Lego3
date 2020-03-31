@@ -20,6 +20,7 @@ class Elephant(components.core.Core):
         """
 
         payload = 'Lego3 is great'
+        received_index = 1
         src_port = random.randint(10000, 20000)
         packet = (
             self.connection.modules['scapy.all'].IP(dst=dst_ip) /
@@ -30,6 +31,7 @@ class Elephant(components.core.Core):
 
         packets = r_srloop(packet, filter=f'udp and dst port {src_port}', timeout=2, count=count)
 
+        # Pass control to main events loop.
         await asyncio.sleep(0)
 
         answered, unanswered = packets.value
@@ -37,4 +39,4 @@ class Elephant(components.core.Core):
         assert len(answered) == count
         assert len(unanswered) == 0
         for i in range(count):
-            assert answered[i][1].load.decode() == payload
+            assert answered[i][received_index].load.decode() == payload

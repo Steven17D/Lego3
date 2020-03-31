@@ -7,7 +7,7 @@ class Tetanus:
     """Library for Tetanus functionality."""
 
     def __init__(self):
-        self._tool_pid = -1
+        self._tool_process = None
 
     def install(self, giraffe: components.giraffe.Giraffe, tool: str, port: int):
         """Installs an echo server.
@@ -18,7 +18,10 @@ class Tetanus:
         """
 
         r_popen = giraffe.connection.modules['subprocess'].Popen
-        self._tool_pid = r_popen(tool.format(port), shell=True).pid
+        self._tool_process = r_popen(
+            tool.format(port),
+            shell=True,
+            preexec_fn=giraffe.connection.modules.os.setsid)
 
     def uninstall(self, giraffe):
         """Uninstall the echo server.
@@ -27,8 +30,6 @@ class Tetanus:
             giraffe: Component API to uninstall tool.
         """
 
-        try:
-            giraffe.connection.modules.os.kill(self._tool_pid, 9)
-            giraffe.connection.modules.os.kill(self._tool_pid + 1, 9)
-        except ProcessLookupError:
-            pass
+        pgrp = giraffe.connection.modules.os.getpgid(self._tool_process.pid)
+        giraffe.connection.modules.os.killpg(
+            pgrp, giraffe.connection.modules.signal.SIGINT)

@@ -3,10 +3,8 @@
 import asyncio
 import pytest
 
-import components.giraffe
 import libs.tetanus
 
-pytest_plugins = 'lego.pytest_lego.plugin'
 
 TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
 BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
@@ -56,7 +54,7 @@ class TestsSpecTetanus:
         """
 
         zebra, *_ = slaves
-        with self._giraffe.monitor_logs(None, '.'):
+        with self._giraffe.monitor_logs(event_handler=None, directory='.'):
             await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
@@ -71,5 +69,5 @@ class TestsSpecTetanus:
             tasks.append(asyncio.ensure_future(
                 slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
-        with self._giraffe.monitor_logs(None, '.'):
+        with self._giraffe.monitor_logs(event_handler=None, directory='.'):
             await asyncio.wait(tasks)
