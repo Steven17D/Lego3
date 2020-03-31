@@ -16,7 +16,7 @@ class LegoManager(rpyc.Service):
     ALIASES = ["LegoManager"]
 
     def __init__(self, *args, **kwargs):
-        super(LegoManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._allocations = dict()
         self._bg_threads = dict()
 
@@ -25,7 +25,7 @@ class LegoManager(rpyc.Service):
 
     def on_disconnect(self, conn):
         self._bg_threads.pop(conn).stop()
-        
+
     @contextlib.contextmanager
     def allocation(self, slaves):
         self.allocate(slaves)
