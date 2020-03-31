@@ -2,10 +2,10 @@
 import contextlib
 import watchdog.events
 
-import libs.core_lib
+import components.core
 
 
-class GiraffeLib(libs.core_lib.CoreLib):
+class Giraffe(components.core.Core):
     """An extended library for Giraffe component."""
 
     @contextlib.contextmanager

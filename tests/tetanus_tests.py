@@ -3,8 +3,8 @@
 import asyncio
 import pytest
 
-import libs.giraffe_lib
-import libs.tetanus_lib
+import components.giraffe
+import libs.tetanus
 
 pytest_plugins = 'lego.pytest_lego.plugin'
 
@@ -19,7 +19,7 @@ class TestsSpecTetanus:
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
         cls._giraffe, *_ = slaves
-        cls._tetanus_lib = libs.tetanus_lib.TetanusLib()
+        cls._tetanus_lib = libs.tetanus.Tetanus()
         cls._echo_port = 1337
 
     def setup_method(self):

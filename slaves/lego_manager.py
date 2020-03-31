@@ -46,9 +46,9 @@ class LegoManager(rpyc.Service):
         # TODO: Run query and return results in allocation
 
         hostname_to_lib = {
-            'zebra': 'libs.zebra_lib.ZebraLib',
-            'giraffe': 'libs.giraffe_lib.GiraffeLib',
-            'elephant': 'libs.elephant_lib.ElephantLib'
+            'zebra': 'components.zebra.Zebra',
+            'giraffe': 'components.giraffe.Giraffe',
+            'elephant': 'components.elephant.Elephant'
         }
         hostnames = (hostname.strip() for hostname in query.split('and'))
 

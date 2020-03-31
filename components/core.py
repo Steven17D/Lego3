@@ -6,7 +6,7 @@ import plumbum
 from rpyc.utils.zerodeploy import DeployedServer
 
 
-class CoreLib:
+class Core:
     """
     Wrapper for RPyC connection.
     Provides simple API which is generic for all RPyC connections.

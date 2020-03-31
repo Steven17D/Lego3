@@ -1,15 +1,15 @@
 """Library for Tetanus functionality."""
 
-import libs.giraffe_lib
+import components.giraffe
 
 
-class TetanusLib:
+class Tetanus:
     """Library for Tetanus functionality."""
 
     def __init__(self):
         self._tool_pid = -1
 
-    def install(self, giraffe: libs.giraffe_lib.GiraffeLib, tool: str, port: int):
+    def install(self, giraffe: components.giraffe.Giraffe, tool: str, port: int):
         """Installs an echo server.
 
         Args:

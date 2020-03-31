@@ -4,10 +4,10 @@ import asyncio
 import random
 import rpyc
 
-import libs.core_lib
+import components.core
 
 
-class ZebraLib(libs.core_lib.CoreLib):
+class Zebra(components.core.Core):
     """An extended library for Zebra component."""
 
     async def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
