@@ -23,7 +23,7 @@ class TestsSpecA:
 
     def teardown_class(cls):
         print(f"teardown class with {cls._slaves}")
-        
+
     def setup_method(self):
         print(f"setup method {self._slaves}")
 

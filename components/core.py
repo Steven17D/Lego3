@@ -6,7 +6,7 @@ import plumbum
 from rpyc.utils.zerodeploy import DeployedServer
 
 
-class CoreLib:
+class Core:
     """
     Wrapper for RPyC connection.
     Provides simple API which is generic for all RPyC connections.
@@ -48,10 +48,6 @@ class CoreLib:
     def reboot(self):
         return self._conn.modules.os.system("reboot -f")
 
-
-class Linux(CoreLib):
-    pass
-
-
-class Windows(CoreLib):
-    pass
+    def get_ip(self):
+        hostname = self._conn.modules['socket'].gethostname()
+        return self._conn.modules['socket'].gethostbyname(hostname)

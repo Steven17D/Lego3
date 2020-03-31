@@ -16,7 +16,7 @@ class LegoManager(rpyc.Service):
     ALIASES = ["LegoManager"]
 
     def __init__(self, *args, **kwargs):
-        super(LegoManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._allocations = dict()
         self._bg_threads = dict()
 
@@ -25,7 +25,7 @@ class LegoManager(rpyc.Service):
 
     def on_disconnect(self, conn):
         self._bg_threads.pop(conn).stop()
-        
+
     @contextlib.contextmanager
     def allocation(self, slaves):
         self.allocate(slaves)
@@ -44,11 +44,19 @@ class LegoManager(rpyc.Service):
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation
-        return [(query, "lib.CoreLib")]
+
+        hostname_to_lib = {
+            'zebra': 'components.zebra.Zebra',
+            'giraffe': 'components.giraffe.Giraffe',
+            'elephant': 'components.elephant.Elephant'
+        }
+        hostnames = (hostname.strip() for hostname in query.split('and'))
+
+        return [(hostname, hostname_to_lib[hostname]) for hostname in hostnames]
 
     def exposed_acquire(self, query, exclusive):
         return self.allocation(self.run_query(query))
-        
+
 
 if __name__ == "__main__":
     rpyc.lib.setup_logger()
