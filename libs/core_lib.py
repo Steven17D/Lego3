@@ -10,7 +10,7 @@ class CoreLib:
     """
     Wrapper for RPyC connection.
     Provides simple API which is generic for all RPyC connections.
-    In order to extened the API implement a wrapping Lib.
+    In order to extend the API implement a wrapping Lib.
     """
 
     __slots__ = ['_conn']
