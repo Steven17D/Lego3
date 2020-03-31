@@ -11,12 +11,20 @@ BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
 BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
 
 
-class TestsSpecTetanus:
+class TestsSpecGiraffe:
+    """A Giraffe spec tests base."""
+
+    def setup_class(cls, slaves):
+        cls._giraffe, *_ = slaves
+
+
+class TestsSpecTetanus(TestsSpecGiraffe):
     """A Tetanus spec tests."""
 
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
-        cls._giraffe, *_ = slaves
+        super().setup_class(cls, slaves)
+
         cls._tetanus_lib = libs.tetanus.Tetanus()
         cls._echo_port = 1337
 
