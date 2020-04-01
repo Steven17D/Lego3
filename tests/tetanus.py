@@ -53,7 +53,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
             tasks.append(asyncio.ensure_future(
                 slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
-        await asyncio.wait(tasks)
+        await asyncio.gather(*tasks)
 
     @pytest.mark.lego('zebra')
     async def test_monitor_send_and_recv(self, slaves):
@@ -78,4 +78,4 @@ class TestsSpecTetanus(TestsSpecGiraffe):
                 slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
         with self._giraffe.monitor_logs(event_handler=None, directory='.'):
-            await asyncio.wait(tasks)
+            await asyncio.gather(*tasks)
