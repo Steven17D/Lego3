@@ -1,0 +1,1 @@
+from .component_factory import require_components
