@@ -1,24 +1,36 @@
 version: '3'
 services:
     central:
-        image: slave
+        image: component
         container_name: central
         hostname: central
+        volumes:
+            - "../slaves/:/root/slaves"
+        command: "python /root/slaves/lego_manager.py --host 0.0.0.0"
 
-    slave-zebra:
-        image: slave
+    zebra:
+        image: component
         container_name: zebra
         hostname: zebra
+        volumes:
+            - "../slaves/:/root/slaves"
+        command: "python /root/slaves/rpyc_classic.py --host 0.0.0.0"
 
-    slave-giraffe:
-        image: slave
+    giraffe:
+        image: component
         container_name: giraffe
         hostname: giraffe
+        volumes:
+            - "../slaves/:/root/slaves"
+        command: "python /root/slaves/rpyc_classic.py --host 0.0.0.0"
 
-    slave-elephant:
-        image: slave
+    elephant:
+        image: component
         container_name: elephant
         hostname: elephant
+        volumes:
+            - "../slaves/:/root/slaves"
+        command: "python /root/slaves/rpyc_classic.py --host 0.0.0.0"
 
     dns:
         image: defreitas/dns-proxy-server
