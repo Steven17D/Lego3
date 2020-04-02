@@ -4,13 +4,13 @@ import asyncio
 
 
 @pytest.mark.lego("giraffe", exclusive=False)
-def test_a(slaves):
+def test_sync(slaves):
     print(f"Slaves a: {slaves}")
     time.sleep(0.25)
 
 
 @pytest.mark.lego("elephant")
-async def test_b(slaves):
+async def test_async(slaves):
     print(f"Slaves b: {slaves}")
     await asyncio.sleep(0.25)
 
@@ -72,8 +72,4 @@ class TestsSpecSetupClassWithoutTeardown:
 
     @pytest.mark.lego('zebra')
     def test_a(self, slaves):
-        print(f"Using: {slaves}")
-
-    @pytest.mark.lego('elephant')
-    def test_b(self, slaves):
         print(f"Using: {slaves}")
