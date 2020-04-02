@@ -61,13 +61,13 @@ def pytest_fixture_setup(fixturedef, request):
     def setup_class_wrapper(*args, **kwargs):
         lego_manager, *_ = request._fixture_defs["slaves"].cached_result
         with slave_factory.acquire_slaves(lego_manager, *mark.args, **mark.kwargs) as wrapped_slaves:
-            test_class.setup_class(test_class, wrapped_slaves, *args, **kwargs)
+            test_class.setup_class(wrapped_slaves, *args, **kwargs)
             try:
                 yield
             finally:
                 teardown_class = getattr(test_class, "teardown_class", None)
                 if teardown_class is not None:
-                    teardown_class(test_class)
+                    teardown_class()
 
     fixturedef.func = setup_class_wrapper
 

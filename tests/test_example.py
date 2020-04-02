@@ -16,11 +16,13 @@ async def test_b(slaves):
 
 
 class TestsSpecA:
+    @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
         cls._slaves = slaves
         print(f"setup class with {cls._slaves}")
 
+    @classmethod
     def teardown_class(cls):
         print(f"teardown class with {cls._slaves}")
 
@@ -40,61 +42,33 @@ class TestsSpecA:
 
 
 class TestsSpecB:
+    @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
         cls._slaves = slaves
         print(f"setup class with {cls._slaves}")
 
+    @classmethod
     def teardown_class(cls):
         print(f"teardown with {cls._slaves}")
 
-    def setup_method(self):
-        print(f"setup method {self._slaves}")
-
-    def teardown_method(self):
-        print(f"teardown method {self._slaves}")
-
     @pytest.mark.lego('zebra')
     def test_a(self, slaves):
-        print(f"Using: {slaves} and {self._slaves}")
-
-    @pytest.mark.lego('elephant')
-    def test_b(self, slaves):
         print(f"Using: {slaves} and {self._slaves}")
 
 
 class TestsSpecWithoutSetupClass:
-    @pytest.mark.lego('giraffe')
-    def setup_class(cls, slaves):
-        cls._slaves = slaves
-        print(f"setup class with {cls._slaves}")
-
-    def setup_method(self):
-        print(f"setup method")
-
-    def teardown_method(self):
-        print(f"teardown method")
-
     @pytest.mark.lego('zebra')
     def test_a(self, slaves):
         print(f"Using: {slaves}")
 
-    @pytest.mark.lego('elephant')
-    def test_b(self, slaves):
-        print(f"Using: {slaves}")
-
 
 class TestsSpecSetupClassWithoutTeardown:
+    @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, slaves):
         cls._slaves = slaves
         print(f"setup class with {cls._slaves}")
-
-    def setup_method(self):
-        print(f"setup method")
-
-    def teardown_method(self):
-        print(f"teardown method")
 
     @pytest.mark.lego('zebra')
     def test_a(self, slaves):
