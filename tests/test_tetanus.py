@@ -24,7 +24,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
     @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, components):
-        super().setup_class(cls, components)
+        super().setup_class(components)
 
         cls._tetanus_lib = libs.tetanus.Tetanus()
         cls._echo_port = 1337
