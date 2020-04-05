@@ -1,5 +1,5 @@
 """
-Supply slaves to the plugin by acquiring them in the lego manager and wrapping in the appropriate library.
+Supply components to the plugin by acquiring them in the lego manager and wrapping in the appropriate library.
 """
 import contextlib
 import importlib
@@ -15,7 +15,7 @@ def get_library(lib_name):
 
 
 @contextlib.contextmanager
-def acquire_slaves(lego_manager, query, exclusive=True):
+def acquire_component(lego_manager, query, exclusive=True):
     """
     Creates salves based on the requested setup.
 
@@ -23,11 +23,11 @@ def acquire_slaves(lego_manager, query, exclusive=True):
         setup - The requested setup.
 
     Returns:
-        slaves.
+        components.
     """
-    with lego_manager.root.acquire(query, exclusive) as slaves:
+    with lego_manager.root.acquire(query, exclusive) as components:
         with contextlib.ExitStack() as stack:
             yield [
                 stack.enter_context(get_library(library_name)(hostname))
-                for hostname, library_name in slaves
+                for hostname, library_name in components
             ]
