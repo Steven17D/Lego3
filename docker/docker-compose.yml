@@ -1,7 +1,7 @@
 version: '3'
 services:
     central:
-        image: component
+        build: .
         container_name: central
         hostname: central
         volumes:
@@ -9,7 +9,7 @@ services:
         command: "python /root/slaves/lego_manager.py --host 0.0.0.0"
 
     zebra:
-        image: component
+        build: .
         container_name: zebra
         hostname: zebra
         volumes:
@@ -17,7 +17,7 @@ services:
         command: "python /root/slaves/rpyc_classic.py --host 0.0.0.0"
 
     giraffe:
-        image: component
+        build: .
         container_name: giraffe
         hostname: giraffe
         volumes:
@@ -25,7 +25,7 @@ services:
         command: "python /root/slaves/rpyc_classic.py --host 0.0.0.0"
 
     elephant:
-        image: component
+        build: .
         container_name: elephant
         hostname: elephant
         volumes:
