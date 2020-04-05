@@ -5,32 +5,26 @@ services:
         container_name: central
         hostname: central
         volumes:
-            - "../slaves/:/root/slaves"
-        command: bash -c "python /root/slaves/lego_manager.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+            - "../lego_manager/:/root/lego_manager"
+        command: bash -c "python /root/lego_manager/lego_manager.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     zebra:
         build: .
         container_name: zebra
         hostname: zebra
-        volumes:
-            - "../slaves/:/root/slaves"
-        command: bash -c "python /root/slaves/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     giraffe:
         build: .
         container_name: giraffe
         hostname: giraffe
-        volumes:
-            - "../slaves/:/root/slaves"
-        command: bash -c "python /root/slaves/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     elephant:
         build: .
         container_name: elephant
         hostname: elephant
-        volumes:
-            - "../slaves/:/root/slaves"
-        command: bash -c "python /root/slaves/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     dns:
         image: defreitas/dns-proxy-server
