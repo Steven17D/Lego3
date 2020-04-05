@@ -17,7 +17,7 @@ def get_library(lib_name):
 @contextlib.contextmanager
 def acquire_components(lego_manager, query, exclusive=True):
     """
-    Creates salves based on the requested setup.
+    Creates components based on the requested setup.
 
     Args:
         setup - The requested setup.
