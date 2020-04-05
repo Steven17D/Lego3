@@ -2,7 +2,8 @@
 ## Basic concepts
 The test are run as follows:
 ```python -m pytest test.py```
-Add optinal `-s` flag to allow test to print to stdout
+Add optional `-s` flag to allow test to print to stdout
+Add optional `-v` flag to make the test more verbose
 
 In order to aquire a components use the `@pytest.mark.lego` decorator and pass it the wanted components. I.E.:
 ```
