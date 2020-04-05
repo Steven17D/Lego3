@@ -1,24 +1,30 @@
 version: '3'
 services:
     central:
-        image: slave
+        build: .
         container_name: central
         hostname: central
+        volumes:
+            - "../lego_manager/:/root/lego_manager"
+        command: bash -c "python /root/lego_manager/lego_manager.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
-    slave-zebra:
-        image: slave
+    zebra:
+        build: .
         container_name: zebra
         hostname: zebra
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
-    slave-giraffe:
-        image: slave
+    giraffe:
+        build: .
         container_name: giraffe
         hostname: giraffe
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
-    slave-elephant:
-        image: slave
+    elephant:
+        build: .
         container_name: elephant
         hostname: elephant
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     dns:
         image: defreitas/dns-proxy-server

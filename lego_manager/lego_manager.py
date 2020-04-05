@@ -27,20 +27,20 @@ class LegoManager(rpyc.Service):
         self._bg_threads.pop(conn).stop()
 
     @contextlib.contextmanager
-    def allocation(self, slaves):
-        self.allocate(slaves)
+    def allocation(self, components):
+        self.allocate(components)
         try:
-            yield slaves
+            yield components
         finally:
-            self.deallocate(slaves)
+            self.deallocate(components)
 
-    def allocate(self, slaves):
-        for slave in slaves:
-            self._allocations[slave] = True
+    def allocate(self, components):
+        for component in components:
+            self._allocations[component] = True
 
-    def deallocate(self, slaves):
-        for slave in slaves:
-            del self._allocations[slave]
+    def deallocate(self, components):
+        for component in components:
+            del self._allocations[component]
 
     def run_query(self, query: str) -> List[Tuple[AnyStr, AnyStr]]:
         # TODO: Run query and return results in allocation

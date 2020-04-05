@@ -13,17 +13,18 @@ BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
 
 class TestsSpecGiraffe:
     """A Giraffe spec tests base."""
-
-    def setup_class(cls, slaves):
-        cls._giraffe, *_ = slaves
+    @classmethod
+    def setup_class(cls, components):
+        cls._giraffe, *_ = components
 
 
 class TestsSpecTetanus(TestsSpecGiraffe):
     """A Tetanus spec tests."""
 
+    @classmethod
     @pytest.mark.lego('giraffe')
-    def setup_class(cls, slaves):
-        super().setup_class(cls, slaves)
+    def setup_class(cls, components):
+        super().setup_class(components)
 
         cls._tetanus_lib = libs.tetanus.Tetanus()
         cls._echo_port = 1337
@@ -35,47 +36,47 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         self._tetanus_lib.uninstall(self._giraffe)
 
     @pytest.mark.lego('zebra')
-    async def test_send_and_recv(self, slaves):
+    async def test_send_and_recv(self, components):
         "The test send packets and expect them back."""
 
-        zebra, *_ = slaves
+        zebra, *_ = components
         await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
-    async def test_multi_send_and_recv(self, slaves):
+    async def test_multi_send_and_recv(self, components):
         """The test send packets from multiple components and
             expect them back.
         """
 
         tasks = []
 
-        for slave in slaves:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
         await asyncio.gather(*tasks)
 
     @pytest.mark.lego('zebra')
-    async def test_monitor_send_and_recv(self, slaves):
+    async def test_monitor_send_and_recv(self, components):
         """The test send packets and expect them back while validating no bad
             logs written.
         """
 
-        zebra, *_ = slaves
+        zebra, *_ = components
         with self._giraffe.monitor_logs(event_handler=None, directory='.'):
             await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra and elephant')
-    async def test_multi_monitor_send_and_receive(self, slaves):
+    async def test_multi_monitor_send_and_receive(self, components):
         """The test send packets from multiple components and
             expect them back, while validating no bad logs written.
         """
 
         tasks = []
 
-        for slave in slaves:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                slave.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
         with self._giraffe.monitor_logs(event_handler=None, directory='.'):
             await asyncio.gather(*tasks)

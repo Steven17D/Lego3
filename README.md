@@ -1,39 +1,27 @@
 # Lego3
-## Basic consepts
+## Basic concepts
 The test are run as follows:
 ```python -m pytest test.py```
-Add optinal `-s` flag to allow test to print to stdout
+Add optional `-s` flag to allow test to print to stdout
+Add optional `-v` flag to make the test more verbose
 
-In order to aquire a slave use the `@get_slaves` decorator and pass it the wanted slaves. I.E.:
+In order to aquire a components use the `@pytest.mark.lego` decorator and pass it the wanted components. I.E.:
 ```
-@get_slaves("8.8.8.8", "8.8.6.6")
-def test_dns(slaves):
-    for slave in slaves:
-        assert "140.82.118.4"" == slave.get_ip("github.com")
+@pytest.mark.lego("8.8.8.8 or 8.8.6.6")
+def test_dns(components):
+    dns = components[0]
+    assert "140.82.118.4"" == dns.get_ip("github.com")
 ```
 
-The `@get_slaves` decorator communicates with the SlaveManager.
-SlaveManager is central service which provides all the slaves for the aquired setup.
+The `@pytest.mark.lego` decorator communicates with the Lego manager.
+Lego manager is central service which provides all the components.
 It is run as follows:
-```python SlaveManager.py```
+```python lego_manager.py```
 
-All slaves are SlaveServices. They are run as follows:
-```python rpyc_classic.py```
+On the components SlaveServices are run as follows:
+```python rpyc_classic.py --host 0.0.0.0```
 
-## SlaveManager responsbilty
-### Option A
-Manages allocations.
-And the SlaveManager creates the Lib instance and the connection to the slave.
-
-Advatages:
-* The test doesn't need to specify which Lib is needed. This is determined by the SlaveManager setup configuration.
-* No need for the test to know the lib: This means that the test is very light
-* All the slave connections are managed by the SlaveManager (not by the test itself)
-* The setup configuration is stored in one place.
-
-Disadvatages:
-* All the traffic of all the running test must pass through the SlaveManager
-
-### Option B
-Manages allocations.
-
+## Lego manager responsibility
+Contains the network's most updated structure.
+The manager provides component to test by a query.
+A query may result in none or many components.
