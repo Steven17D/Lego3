@@ -1,6 +1,6 @@
 """Library for Tetanus functionality."""
 
-import components.giraffe
+import example.components.giraffe
 
 
 class Tetanus:
@@ -9,7 +9,7 @@ class Tetanus:
     def __init__(self):
         self._tool_process = None
 
-    def install(self, giraffe: components.giraffe.Giraffe, tool: str, port: int):
+    def install(self, giraffe: example.components.giraffe.Giraffe, tool: str, port: int):
         """Installs an echo server.
 
         Args:
