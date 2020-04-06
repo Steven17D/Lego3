@@ -199,3 +199,16 @@ python3.8 -m pylint changed_dir/
 #### Conventions
 
 Before you start to develop any code, make sure you follow our [Python 3 conventions](https://docs.google.com/document/d/1wz1MVP0h7ZlklJ4UaLQiW4C15QLLoOj4x6NJKn_V0jA/edit?usp=sharing).
+
+
+## Notes
+
+### Merging issues
+
+Any contibution of new code to `master` branch should pass the process of PR -> CR.
+this is in purpose to keep the repository clean and order, and make sure the
+contributed code doesn't harm any other code first, and second - do what it
+suppose to do.
+
+Up to now, the permission to merge to `master` can gave by one of us: Ariel Chinn,
+Steven Dashevsky or Elyashiv Shayovitz.
