@@ -210,5 +210,5 @@ this is in purpose to keep the repository clean and order, and make sure the
 contributed code doesn't harm any other code first, and second - do what it
 suppose to do.
 
-Up to now, the permission to merge to `master` can gave by one of us: Ariel Chinn,
-Steven Dashevsky or Elyashiv Shayovitz.
+Up to now, the permission to merge to `master` can gave by one of us: @yelly
+@Steven17D or @Elyash.
