@@ -25,3 +25,7 @@ On the components SlaveServices are run as follows:
 Contains the network's most updated structure.
 The manager provides component to test by a query.
 A query may result in none or many components.
+
+## Development
+
+Notice our `developer_guide` file for contributing the project.
