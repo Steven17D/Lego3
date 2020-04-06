@@ -198,7 +198,7 @@ python3.8 -m pylint changed_dir/
 
 #### Conventions
 
-Before you start to develop any code, make sure you follow our [Python 3 conventions](https://docs.google.com/document/d/1wz1MVP0h7ZlklJ4UaLQiW4C15QLLoOj4x6NJKn_V0jA/edit?usp=sharing).
+Before you start to develop any code, make sure you follow our [Python 3 conventions](https://google.github.io/styleguide/pyguide.html).
 
 
 ## Notes
