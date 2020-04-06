@@ -211,5 +211,4 @@ this is in purpose to keep the repository clean and order, and make sure the
 contributed code doesn't harm any other code first, and second - do what it
 suppose to do.
 
-Up to now, the permission to merge to `master` can give by one of us: @yelly
-@Steven17D or @Elyash.
+Up to now, the permission to merge to `master` can give by one of us: [Ariel Chinn](https://github.com/yelly), [Steven Dashevsky](https://github.com/Steven17D) and [Elyashiv Shayovitz](https://github.com/Elyash).
