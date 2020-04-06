@@ -3,7 +3,7 @@
 import asyncio
 import pytest
 
-import libs.tetanus
+import example.libs.tetanus
 
 
 TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
@@ -26,7 +26,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
     def setup_class(cls, components):
         super().setup_class(components)
 
-        cls._tetanus_lib = libs.tetanus.Tetanus()
+        cls._tetanus_lib = example.libs.tetanus.Tetanus()
         cls._echo_port = 1337
 
     def setup_method(self):
