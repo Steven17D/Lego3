@@ -67,7 +67,7 @@ RPyC is a Python library for Python connection to remote devices.
 
 It is one of the basic stones of Lego 3.
 
-Read [here](https://rpyc.readthedocs.io/en/latest/index.html) the "Tutorial" and "Documentation" paragraphes.
+Read [here](https://rpyc.readthedocs.io/en/latest/index.html) the "Tutorial" and "Documentation" paragraphs.
 
 #### AsyncIO
 
