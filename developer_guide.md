@@ -1,7 +1,7 @@
 # Lego 3 - Developer Guide
 
 This file has 2 main purposes:
-1. Help you develop Lego 3 (core, libs or tests), avoid you from common mistakes and save your time when entering the project.
+1. Help you develop Lego 3 (core, libs or tests), prevent common mistakes and save your time when entering the project.
 2. Keep Lego 3 repository clean and order, avoid conflicts between developers and save the time of who reads/uses your code. 
 
 ## Background
@@ -41,7 +41,8 @@ After understanding the new terms, have a look at the whole system structure [he
 One of the requirements of this project is future proof.
 The most updated Python version will help us ensure this.
 
-Assuming advanced knowledge of Python 2, view [this](https://drive.google.com/drive/folders/1iZOsG1GowACO6pIsewtT3izaJmeAQGZN) lecture to notice the differences between Python 2 and Python 3.
+Assuming advanced knowledge of Python 2, view [this](https://drive.google.com/drive/folders/1iZOsG1GowACO6pIsewtT3izaJmeAQGZN?usp=sharing) lecture to notice the differences between Python 2 and Python 3.
+
 
 #### PyTest
 
@@ -66,7 +67,7 @@ RPyC is a Python library for Python connection to remote devices.
 
 It is one of the basic stones of Lego 3.
 
-Read [here](https://rpyc.readthedocs.io/en/latest/index.html) the "Tutorial" and "Documentation" pharagraphes.
+Read [here](https://rpyc.readthedocs.io/en/latest/index.html) the "Tutorial" and "Documentation" paragraphes.
 
 #### AsyncIO
 
@@ -80,7 +81,7 @@ Read [here](https://docs.python.org/3/library/asyncio.html) on the AsyncIO Pytho
 
 ## Lego 3 Repository
 
-### Structrue
+### Structure
 
 *Mandatory*
 
@@ -99,7 +100,7 @@ Lego 3 repository divided to the following directories:
 Read both tests `test_tetanus.py` and `test_example.py`, make sure you understand everything!!
 
 explanations:
-* `@pytest.mark.lego` - This is a reference for lego plugin. What happens, in general, is that lego plugin request setup from the lego manager, and returns the requested components. Search for this decorator in `lego` dir to find its params docstrings.
+* `@pytest.mark.lego` - This is a reference for the lego plugin. What happens, in general, is that lego plugin request setup from the lego manager, and returns the requested components. Search for this decorator in `lego` dir to find its params docstrings.
 * `def test(components)` - A fixture to return the requested components asked by the lego plugin.
 * `async` or `asyncio.*` - Search in AsycnIO.
 * `setup_method` or `setup_class` - Search in PyTest.
@@ -170,7 +171,7 @@ All tests should pass successfully.
 ### Source and Tasks Control
 #### Trello
 
-Each Lego issue should be well documented in [Lego](https://trello.com/b/N1MDT9Lr/lego) Trello page.
+Each Lego issue should be well documented on [Lego](https://trello.com/b/N1MDT9Lr/lego) Trello page.
 
 How to contribute to Lego?
 
@@ -190,7 +191,7 @@ How to contribute to Lego?
 
 Pylint is a Python static code analysis tool that looks for programming errors, helps to enforce a coding standard, sniffs for code smells and offers simple refactoring suggestions.
 
-For keeping the code cleaner and understandable, before submitting you code make sure to pylint it as follow:
+For keeping the code cleaner and understandable, before submitting your code make sure to pylint it as follow:
 
 ```bash
 python3.8 -m pylint changed_dir/
@@ -205,10 +206,10 @@ Before you start to develop any code, make sure you follow our [Python 3 convent
 
 ### Merging issues
 
-Any contibution of new code to `master` branch should pass the process of PR -> CR.
+Any contribution of new code to `master` branch should pass the process of PR -> CR.
 this is in purpose to keep the repository clean and order, and make sure the
 contributed code doesn't harm any other code first, and second - do what it
 suppose to do.
 
-Up to now, the permission to merge to `master` can gave by one of us: Ariel Chinn,
+Up to now, the permission to merge to `master` can give by one of us: Ariel Chinn,
 Steven Dashevsky or Elyashiv Shayovitz.

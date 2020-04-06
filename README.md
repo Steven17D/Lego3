@@ -28,4 +28,4 @@ A query may result in none or many components.
 
 ## Development
 
-Notice our `developer_guide` file for contributing the project.
+Notice our [developer_guide](developer_guide.md) file for contributing the project.
