@@ -142,7 +142,7 @@ Before install and run the Lego project, make sure you have a Linux (recommended
 
 The current project works with a Docker environment since we have no setup to model it.
 
-To install Docker correctly, just follow [this link](https://docs.docker.com/install/linux/docker-ce/ubuntu/). 
+To install Docker correctly, just follow [this link](https://docs.docker.com/install/linux/docker-ce/ubuntu/), and after if, install `docker-compose` from [here](https://docs.docker.com/compose/install/).
 
 #### Repository
 
