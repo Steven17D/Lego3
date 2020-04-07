@@ -1,8 +1,8 @@
 # Lego 3 - Developer Guide
 
-This file has 2 main purposes:
+This fle has 2 main purposes:
 1. Help you develop Lego 3 (core, libs or tests), prevent common mistakes and save your time when entering the project.
-2. Keep Lego 3 repository clean and order, avoid conflicts between developers and save the time of who reads/uses your code. 
+2. Keep Lego 3 repository clean and order, avoid conflicts between developers and save the time of who reads/uses your code.
 
 ## Background
 
@@ -24,7 +24,7 @@ Read the requirements for this project [here](https://docs.google.com/document/d
 #### Terminology and Structure
 
 *Mandatory*
- 
+
 Whether you already familiar with Lego or not, it is important to understand the new terminology of Lego 3 and its structure.
 
 Read Lego 3 terminology [here](https://docs.google.com/document/d/1gSl9_jS_pIAkGtNLJSBKUGRbcOhALKMzv1ewWZSSElg/edit?usp=sharing) under "Terminology".
