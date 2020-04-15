@@ -2,11 +2,16 @@
 Supply components to the plugin by acquiring them in the lego manager,
 and wrapping in the appropriate library.
 """
+from typing import Iterator, List
+
 import contextlib
 import importlib
+import rpyc
+
+import components.core
 
 
-def get_library(lib_name: str):
+def get_library(lib_name: str) -> components.core.Core:
     """Gets the requesnt library instance.
 
     Args:
@@ -21,19 +26,25 @@ def get_library(lib_name: str):
 
 
 @contextlib.contextmanager
-def acquire_components(lego_manager, query: str, exclusive:bool = True):
+def acquire_components(
+        lego_manager: rpyc.Connection,
+        query: str,
+        exclusive: bool = True
+    ) -> Iterator[List[components.core.Core]]:
     """Creates components based on the requested setup.
 
     Args:
-        setup - The requested setup.
+        lego_manager: A lego manager instance.
+        query: A query describes the requested setup.
+        exclusive (optional): Wether to lock the requested setup. Defaults to True.
 
-    Returns:
-        components.
+    Yields:
+        The reqested components.
     """
 
-    with lego_manager.root.acquire(query, exclusive) as components:
+    with lego_manager.root.acquire(query, exclusive) as _components:
         with contextlib.ExitStack() as stack:
             yield [
                 stack.enter_context(get_library(library_name)(hostname))
-                for hostname, library_name in components
+                for hostname, library_name in _components
             ]
