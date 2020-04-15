@@ -3,7 +3,6 @@
 import asyncio
 import functools
 import random
-import rpyc
 
 import components.core
 
@@ -11,7 +10,12 @@ import components.core
 class Zebra(components.core.Core):
     """An extended library for Zebra component."""
 
-    async def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
+    async def send_and_receive(
+            self,
+            dst_ip: str,
+            dst_port: int,
+            count: int = 5
+        ) -> None:
         """Sends packets and receive them back.
 
         Args:
@@ -32,8 +36,8 @@ class Zebra(components.core.Core):
         )
 
         r_srloop = self.connection.modules['scapy.all'].srloop
-        partial_r_srloop = functools.partial(r_srloop, packet,
-                filter=f'udp and dst port {src_port}', timeout=1, count=count)
+        partial_r_srloop = functools.partial(
+            r_srloop, packet, filter=f'udp and dst port {src_port}', timeout=1, count=count)
 
         loop = asyncio.get_running_loop()
         answered, unanswered = await loop.run_in_executor(executor, partial_r_srloop)

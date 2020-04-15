@@ -1,4 +1,6 @@
 """Elephant lib is API to elephant component."""
+from typing import Any
+
 import contextlib
 import watchdog.events
 
@@ -13,7 +15,7 @@ class Giraffe(components.core.Core):
             self,
             event_handler: watchdog.events.FileSystemEventHandler,
             directory: str
-        ):
+        ) -> Any:
         """Monitor specific directory to not change.
 
         Args:
