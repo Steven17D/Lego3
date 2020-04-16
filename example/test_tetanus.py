@@ -20,8 +20,7 @@ class TestsSpecGiraffe:
         giraffe: Giraffe instance.
     """
 
-    _giraffe: Giraffe = None
-
+    _giraffe: Giraffe = None # type: ignore
 
     @classmethod
     def setup_class(cls, _components: List[Giraffe]) -> None:

@@ -45,6 +45,6 @@ def acquire_components(
     with lego_manager.root.acquire(query, exclusive) as _components:
         with contextlib.ExitStack() as stack:
             yield [
-                stack.enter_context(get_library(library_name)(hostname))
+                stack.enter_context(get_library(library_name)(hostname))  # type: ignore
                 for hostname, library_name in _components
             ]
