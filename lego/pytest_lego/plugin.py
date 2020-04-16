@@ -1,6 +1,10 @@
+# type: ignore
+# pylint: skip-file
 """
 Implementation of the pytest-lego plugin.
 """
+from typing import Any
+
 import asyncio
 import functools
 import pytest
@@ -12,28 +16,38 @@ MARK = 'lego'
 
 
 @pytest.fixture(scope='session')
-def components(request):
+def _components(request) -> rpyc.Connection:
     """Provides the connection to the lego manager.
 
-    The 'components' fixture doesn't provide components but provides a way
+    The '_components' fixture doesn't provide components but provides a way
     for our test wrapper to create components.
     Using the lego manager API the test wrapper acquires the components and
     provide them to the original test function.
 
+    Args:
+        request: A PyTest fixture helper.
+
     Returns:
         RPyC connection to LegoManager service.
     """
+
     assert MARK in request.config.inicfg.config.sections, f'Missing {MARK} section in inifile'
     assert 'lego_manager' in request.config.inicfg.config.sections[MARK], (
         'Missing lego_manager hostname in inifile')
+
     manager = request.config.inicfg.config.sections[MARK]['lego_manager']
     lego_manager = rpyc.connect(host=manager, port=18861)
     request.addfinalizer(lego_manager.close)
+
     return lego_manager
 
 
-def pytest_configure(config):
-    """Adds the lego mark."""
+def pytest_configure(config: Any) -> None:
+    """Adds the lego mark.
+
+    Args:
+        config: A PyTest configuration object.
+    """
 
     config.addinivalue_line(
         'markers',
@@ -59,7 +73,7 @@ def pytest_fixture_setup(fixturedef, request):
 
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
-        lego_manager, *_ = request._fixture_defs['components'].cached_result
+        lego_manager, *_ = request._fixture_defs['_components'].cached_result
         with component_factory.acquire_components(
                 lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
             test_class.setup_class(wrapped_components, *args, **kwargs)
@@ -92,12 +106,12 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Item):
     if asyncio.iscoroutinefunction(test):
         @functools.wraps(test)
         async def test_wrapper(**kwargs):
-            return await async_run_test(test, lego_mark, lego_manager=kwargs['components'])
+            return await async_run_test(test, lego_mark, lego_manager=kwargs['_components'])
 
     else:
         @functools.wraps(test)
         def test_wrapper(**kwargs):
-            return run_test(test, lego_mark, lego_manager=kwargs['components'])
+            return run_test(test, lego_mark, lego_manager=kwargs['_components'])
 
     test_wrapper.pytestmark = test.pytestmark
     pyfuncitem.obj = test_wrapper

@@ -8,10 +8,10 @@ import contextlib
 import importlib
 import rpyc
 
-import components.core
+from Lego3.components.core import Core
 
 
-def get_library(lib_name: str) -> components.core.Core:
+def get_library(lib_name: str) -> Core:
     """Gets the requesnt library instance.
 
     Args:
@@ -30,7 +30,7 @@ def acquire_components(
         lego_manager: rpyc.Connection,
         query: str,
         exclusive: bool = True
-    ) -> Iterator[List[components.core.Core]]:
+    ) -> Iterator[List[Core]]:
     """Creates components based on the requested setup.
 
     Args:

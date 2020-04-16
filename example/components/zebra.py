@@ -4,10 +4,10 @@ import asyncio
 import functools
 import random
 
-import components.core
+from Lego3.components.core import Core
 
 
-class Zebra(components.core.Core):
+class Zebra(Core):
     """An extended library for Zebra component."""
 
     async def send_and_receive(
@@ -21,7 +21,7 @@ class Zebra(components.core.Core):
         Args:
             dst_ip: The IP to send to and receive from.
             dst_port: The port to send to and receive from.
-            count: The number of packets to send.
+            count (optional): The number of packets to send. Defaults to 5.
         """
 
         executor = None

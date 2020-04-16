@@ -4,10 +4,10 @@ from typing import Any
 import contextlib
 import watchdog.events
 
-import components.core
+from Lego3.components.core import Core
 
 
-class Giraffe(components.core.Core):
+class Giraffe(Core):
     """An extended library for Giraffe component."""
 
     @contextlib.contextmanager

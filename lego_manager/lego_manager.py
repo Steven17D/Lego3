@@ -6,8 +6,6 @@ from typing import List, Dict, Tuple, Iterator
 import contextlib
 import rpyc
 
-import components.core
-
 
 class LegoManager(rpyc.Service):
     """
@@ -44,9 +42,9 @@ class LegoManager(rpyc.Service):
     @contextlib.contextmanager
     def _allocation(
             self,
-            _components: List[components.core.Core],
+            _components: List[Tuple[str, str]],
             exclusive: bool
-        ) -> Iterator[List[components.core.Core]]:
+        ) -> Iterator[List[Tuple[str, str]]]:
         """Manages the components allocations.
 
         Args:
@@ -65,7 +63,7 @@ class LegoManager(rpyc.Service):
         finally:
             self._deallocate(_components)
 
-    def _allocate(self, _components: List[components.core.Core]) -> None:
+    def _allocate(self, _components: List[Tuple[str, str]]) -> None:
         """Allocates the desired components if available.
 
         Args:
@@ -75,7 +73,7 @@ class LegoManager(rpyc.Service):
         for component in _components:
             self._allocations[component] = True
 
-    def _deallocate(self, _components: List[components.core.Core]) -> None:
+    def _deallocate(self, _components: List[Tuple[str, str]]) -> None:
         """Deallocates the desired components.
 
         Args:
@@ -99,9 +97,9 @@ class LegoManager(rpyc.Service):
         # TODO: Run query and return results in allocation
 
         hostname_to_lib = {
-            'zebra': 'example.components.zebra.Zebra',
-            'giraffe': 'example.components.giraffe.Giraffe',
-            'elephant': 'example.components.elephant.Elephant'
+            'zebra': 'Lego3.example.components.zebra.Zebra',
+            'giraffe': 'Lego3.example.components.giraffe.Giraffe',
+            'elephant': 'Lego3.example.components.elephant.Elephant'
         }
         hostnames = (hostname.strip() for hostname in query.split('and'))
 
@@ -123,9 +121,14 @@ class LegoManager(rpyc.Service):
         return self._allocation(LegoManager._run_query(query), exclusive)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Starts Lego server."""
+
     rpyc.lib.setup_logger()
-    from rpyc.utils.server import ThreadedServer
+    from rpyc.utils.server import ThreadedServer # pylint: disable=import-outside-toplevel
     # Note: all connection will use the same LegoManager
     lego_server = ThreadedServer(LegoManager(), port=18861)
     lego_server.start()
+
+if __name__ == "__main__":
+    main()

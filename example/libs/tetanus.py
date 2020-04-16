@@ -1,7 +1,7 @@
 """Library for Tetanus functionality."""
 import subprocess
 
-import example.components.giraffe
+from Lego3.example.components.giraffe import Giraffe
 
 
 class Tetanus:
@@ -12,7 +12,7 @@ class Tetanus:
 
     def install(
             self,
-            giraffe: example.components.giraffe.Giraffe,
+            giraffe: Giraffe,
             tool: str,
             port: int
         ) -> None:
@@ -29,7 +29,7 @@ class Tetanus:
             shell=True,
             preexec_fn=giraffe.connection.modules.os.setsid)
 
-    def uninstall(self, giraffe: example.components.giraffe.Giraffe) -> None:
+    def uninstall(self, giraffe: Giraffe) -> None:
         """Uninstall the echo server.
 
         Args:
