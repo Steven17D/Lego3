@@ -73,9 +73,8 @@ def pytest_fixture_setup(fixturedef, request):
 
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
-        lego_manager, *_ = request._fixture_defs['_components'].cached_result
-        with component_factory.acquire_components(
-                lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
+        lego_manager = request.getfixturevalue('_components')
+        with component_factory.acquire_components(lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
             test_class.setup_class(wrapped_components, *args, **kwargs)
             try:
                 yield
