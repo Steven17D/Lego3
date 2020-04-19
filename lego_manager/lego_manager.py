@@ -73,6 +73,7 @@ class LegoManager(rpyc.Service):
         for connection in connections:
             self._allocations[connection] = True
 
+
     def _deallocate(self, connections: List[Tuple[str, str]]) -> None:
         """Deallocates the desired components.
 

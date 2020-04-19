@@ -85,7 +85,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
         for connection in connections:
             tasks.append(asyncio.ensure_future(
-                component.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
 
         await asyncio.gather(*tasks)
 
@@ -109,7 +109,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
         for connection in connections:
             tasks.append(asyncio.ensure_future(
-                component.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
 
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
             await asyncio.gather(*tasks)
