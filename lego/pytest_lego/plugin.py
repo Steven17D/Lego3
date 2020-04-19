@@ -74,8 +74,8 @@ def pytest_fixture_setup(fixturedef, request):
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
         lego_manager = request.getfixturevalue('connections')
-        with component_factory.acquireconnections(lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
-            test_class.setup_class(wrappedconnections, *args, **kwargs)
+        with component_factory.acquire_connections(lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
+            test_class.setup_class(wrapped_connections, *args, **kwargs)
             try:
                 yield
             finally:
@@ -119,14 +119,14 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Item):
 def run_test(test_function, mark, lego_manager):
     """Runs the test function with wrapped components."""
 
-    with component_factory.acquireconnections(
-            lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
-        return test_function(wrappedconnections)
+    with component_factory.acquire_connections(
+            lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
+        return test_function(wrapped_connections)
 
 
 async def async_run_test(test_function, mark, lego_manager):
     """Runs the test function with wrapped components and await it."""
 
-    with component_factory.acquireconnections(
-            lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
-        return await test_function(wrappedconnections)
+    with component_factory.acquire_connections(
+            lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
+        return await test_function(wrapped_connections)

@@ -26,7 +26,7 @@ def get_library(lib_name: str) -> Core:
 
 
 @contextlib.contextmanager
-def acquireconnections(
+def acquire_connections(
         lego_manager: rpyc.Connection,
         query: str,
         exclusive: bool = True
