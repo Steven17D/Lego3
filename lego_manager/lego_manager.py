@@ -70,8 +70,8 @@ class LegoManager(rpyc.Service):
             connections: Desired components.
         """
 
-        for component in connections:
-            self._allocations[component] = True
+        for connection in connections:
+            self._allocations[connection] = True
 
     def _deallocate(self, connections: List[Tuple[str, str]]) -> None:
         """Deallocates the desired components.
@@ -80,8 +80,8 @@ class LegoManager(rpyc.Service):
             connections: Unneeded components.
         """
 
-        for component in connections:
-            del self._allocations[component]
+        for connection in connections:
+            del self._allocations[connection]
 
     @staticmethod
     def _run_query(query: str) -> List[Tuple[str, str]]:
