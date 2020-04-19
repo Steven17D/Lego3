@@ -1,33 +1,50 @@
 """
-Supply components to the plugin by acquiring them in the lego manager and wrapping in the appropriate library.
+Supply components to the plugin by acquiring them in the lego manager,
+and wrapping in the appropriate library.
 """
+from typing import Iterator, List
+
 import contextlib
 import importlib
+import rpyc
+
+from Lego3.components.core import Core
 
 
-def get_library(lib_name):
+def get_library(lib_name: str) -> Core:
+    """Gets the requesnt library instance.
+
+    Args:
+        lib_name: the requeted module instance.
+
+    Retruns:
+        The library instance.
     """
-    Receives string which represents a library name.
-    Returns the library object by importing it.
-    """
+
     *module, lib_class = lib_name.split('.')
     return getattr(importlib.import_module('.'.join(module)), lib_class)
 
 
 @contextlib.contextmanager
-def acquire_components(lego_manager, query, exclusive=True):
-    """
-    Creates components based on the requested setup.
+def acquire_connections(
+        lego_manager: rpyc.Connection,
+        query: str,
+        exclusive: bool = True
+    ) -> Iterator[List[Core]]:
+    """Creates components based on the requested setup.
 
     Args:
-        setup - The requested setup.
+        lego_manager: A lego manager instance.
+        query: A query describes the requested setup.
+        exclusive (optional): Wether to lock the requested setup. Defaults to True.
 
-    Returns:
-        components.
+    Yields:
+        The reqested components.
     """
-    with lego_manager.root.acquire(query, exclusive) as components:
+
+    with lego_manager.root.acquire(query, exclusive) as connections:
         with contextlib.ExitStack() as stack:
             yield [
-                stack.enter_context(get_library(library_name)(hostname))
-                for hostname, library_name in components
+                stack.enter_context(get_library(library_name)(hostname))  # type: ignore
+                for hostname, library_name in connections
             ]

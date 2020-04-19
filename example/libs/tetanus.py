@@ -1,15 +1,21 @@
 """Library for Tetanus functionality."""
+import subprocess
 
-import example.components.giraffe
+from Lego3.example.components.giraffe import Giraffe
 
 
 class Tetanus:
     """Library for Tetanus functionality."""
 
-    def __init__(self):
-        self._tool_process = None
+    def __init__(self) -> None:
+        self._tool_process: subprocess.Popen
 
-    def install(self, giraffe: example.components.giraffe.Giraffe, tool: str, port: int):
+    def install(
+            self,
+            giraffe: Giraffe,
+            tool: str,
+            port: int
+        ) -> None:
         """Installs an echo server.
 
         Args:
@@ -23,7 +29,7 @@ class Tetanus:
             shell=True,
             preexec_fn=giraffe.connection.modules.os.setsid)
 
-    def uninstall(self, giraffe):
+    def uninstall(self, giraffe: Giraffe) -> None:
         """Uninstall the echo server.
 
         Args:

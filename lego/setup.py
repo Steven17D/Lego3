@@ -1,3 +1,4 @@
+"""This file describes the lego plugin setup info."""
 from setuptools import setup
 
 setup(

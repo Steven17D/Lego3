@@ -3,21 +3,25 @@
 import asyncio
 import functools
 import random
-import rpyc
 
-import components.core
+from Lego3.components.core import Core
 
 
-class Zebra(components.core.Core):
+class Zebra(Core):
     """An extended library for Zebra component."""
 
-    async def send_and_receive(self, dst_ip: str, dst_port: int, count: int = 5):
+    async def send_and_receive(
+            self,
+            dst_ip: str,
+            dst_port: int,
+            count: int = 5
+        ) -> None:
         """Sends packets and receive them back.
 
         Args:
             dst_ip: The IP to send to and receive from.
             dst_port: The port to send to and receive from.
-            count: The number of packets to send.
+            count (optional): The number of packets to send. Defaults to 5.
         """
 
         executor = None
@@ -32,8 +36,8 @@ class Zebra(components.core.Core):
         )
 
         r_srloop = self.connection.modules['scapy.all'].srloop
-        partial_r_srloop = functools.partial(r_srloop, packet,
-                filter=f'udp and dst port {src_port}', timeout=1, count=count)
+        partial_r_srloop = functools.partial(
+            r_srloop, packet, filter=f'udp and dst port {src_port}', timeout=1, count=count)
 
         loop = asyncio.get_running_loop()
         answered, unanswered = await loop.run_in_executor(executor, partial_r_srloop)
