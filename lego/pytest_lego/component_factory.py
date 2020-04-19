@@ -26,7 +26,7 @@ def get_library(lib_name: str) -> Core:
 
 
 @contextlib.contextmanager
-def acquire_components(
+def acquireconnections(
         lego_manager: rpyc.Connection,
         query: str,
         exclusive: bool = True
@@ -42,9 +42,9 @@ def acquire_components(
         The reqested components.
     """
 
-    with lego_manager.root.acquire(query, exclusive) as _components:
+    with lego_manager.root.acquire(query, exclusive) as connections:
         with contextlib.ExitStack() as stack:
             yield [
                 stack.enter_context(get_library(library_name)(hostname))  # type: ignore
-                for hostname, library_name in _components
+                for hostname, library_name in connections
             ]

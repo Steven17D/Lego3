@@ -42,13 +42,13 @@ class LegoManager(rpyc.Service):
     @contextlib.contextmanager
     def _allocation(
             self,
-            _components: List[Tuple[str, str]],
+            connections: List[Tuple[str, str]],
             exclusive: bool
         ) -> Iterator[List[Tuple[str, str]]]:
         """Manages the components allocations.
 
         Args:
-            _components: Required components.
+            connections: Required components.
             exclusive: Whether to lock the required setup.
 
         Yields:
@@ -57,30 +57,30 @@ class LegoManager(rpyc.Service):
 
         del exclusive # TODO: Add this functionality.
 
-        self._allocate(_components)
+        self._allocate(connections)
         try:
-            yield _components
+            yield connections
         finally:
-            self._deallocate(_components)
+            self._deallocate(connections)
 
-    def _allocate(self, _components: List[Tuple[str, str]]) -> None:
+    def _allocate(self, connections: List[Tuple[str, str]]) -> None:
         """Allocates the desired components if available.
 
         Args:
-            _components: Desired components.
+            connections: Desired components.
         """
 
-        for component in _components:
+        for component in connections:
             self._allocations[component] = True
 
-    def _deallocate(self, _components: List[Tuple[str, str]]) -> None:
+    def _deallocate(self, connections: List[Tuple[str, str]]) -> None:
         """Deallocates the desired components.
 
         Args:
-            _components: Unneeded components.
+            connections: Unneeded components.
         """
 
-        for component in _components:
+        for component in connections:
             del self._allocations[component]
 
     @staticmethod

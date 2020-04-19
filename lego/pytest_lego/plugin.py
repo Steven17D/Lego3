@@ -16,10 +16,10 @@ MARK = 'lego'
 
 
 @pytest.fixture(scope='session')
-def _components(request) -> rpyc.Connection:
+def connections(request) -> rpyc.Connection:
     """Provides the connection to the lego manager.
 
-    The '_components' fixture doesn't provide components but provides a way
+    The 'connections' fixture doesn't provide components but provides a way
     for our test wrapper to create components.
     Using the lego manager API the test wrapper acquires the components and
     provide them to the original test function.
@@ -73,9 +73,9 @@ def pytest_fixture_setup(fixturedef, request):
 
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
-        lego_manager = request.getfixturevalue('_components')
-        with component_factory.acquire_components(lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
-            test_class.setup_class(wrapped_components, *args, **kwargs)
+        lego_manager = request.getfixturevalue('connections')
+        with component_factory.acquireconnections(lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
+            test_class.setup_class(wrappedconnections, *args, **kwargs)
             try:
                 yield
             finally:
@@ -105,12 +105,12 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Item):
     if asyncio.iscoroutinefunction(test):
         @functools.wraps(test)
         async def test_wrapper(**kwargs):
-            return await async_run_test(test, lego_mark, lego_manager=kwargs['_components'])
+            return await async_run_test(test, lego_mark, lego_manager=kwargs['connections'])
 
     else:
         @functools.wraps(test)
         def test_wrapper(**kwargs):
-            return run_test(test, lego_mark, lego_manager=kwargs['_components'])
+            return run_test(test, lego_mark, lego_manager=kwargs['connections'])
 
     test_wrapper.pytestmark = test.pytestmark
     pyfuncitem.obj = test_wrapper
@@ -119,14 +119,14 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Item):
 def run_test(test_function, mark, lego_manager):
     """Runs the test function with wrapped components."""
 
-    with component_factory.acquire_components(
-            lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
-        return test_function(wrapped_components)
+    with component_factory.acquireconnections(
+            lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
+        return test_function(wrappedconnections)
 
 
 async def async_run_test(test_function, mark, lego_manager):
     """Runs the test function with wrapped components and await it."""
 
-    with component_factory.acquire_components(
-            lego_manager, *mark.args, **mark.kwargs) as wrapped_components:
-        return await test_function(wrapped_components)
+    with component_factory.acquireconnections(
+            lego_manager, *mark.args, **mark.kwargs) as wrappedconnections:
+        return await test_function(wrappedconnections)

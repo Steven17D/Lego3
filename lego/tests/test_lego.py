@@ -15,42 +15,42 @@ class TestsSpecA:
     @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, components):
-        cls._components = components
-        print(f"setup class with {cls._components}")
+        cls.connections = components
+        print(f"setup class with {cls.connections}")
 
     @classmethod
     def teardown_class(cls):
-        print(f"teardown class with {cls._components}")
+        print(f"teardown class with {cls.connections}")
 
     def setup_method(self):
-        print(f"setup method {self._components}")
+        print(f"setup method {self.connections}")
 
     def teardown_method(self):
-        print(f"teardown method {self._components}")
+        print(f"teardown method {self.connections}")
 
     @pytest.mark.lego('zebra')
     def test_a(self, components):
-        print(f"Using: {components} and {self._components}")
+        print(f"Using: {components} and {self.connections}")
 
     @pytest.mark.lego('elephant')
     def test_b(self, components):
-        print(f"Using: {components} and {self._components}")
+        print(f"Using: {components} and {self.connections}")
 
 
 class TestsSpecB:
     @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, components):
-        cls._components = components
-        print(f"setup class with {cls._components}")
+        cls.connections = components
+        print(f"setup class with {cls.connections}")
 
     @classmethod
     def teardown_class(cls):
-        print(f"teardown with {cls._components}")
+        print(f"teardown with {cls.connections}")
 
     @pytest.mark.lego('zebra')
     def test_a(self, components):
-        print(f"Using: {components} and {self._components}")
+        print(f"Using: {components} and {self.connections}")
 
 
 class TestsSpecWithoutSetupClass:
@@ -63,8 +63,8 @@ class TestsSpecSetupClassWithoutTeardown:
     @classmethod
     @pytest.mark.lego('giraffe')
     def setup_class(cls, components):
-        cls._components = components
-        print(f"setup class with {cls._components}")
+        cls.connections = components
+        print(f"setup class with {cls.connections}")
 
     @pytest.mark.lego('zebra')
     def test_a(self, components):
