@@ -36,8 +36,8 @@ services:
         volumes:
             - "/opt/dns-proxy-server/conf:/app/conf"
             - "/var/run/docker.sock:/var/run/docker.sock"
-            - "/run:/host/run"
+            - "/etc/resolv.conf:/host/etc/resolv.conf"
         environment:
-            - MG_RESOLVCONF=/host/run/resolvconf/resolv.conf
+            - MG_RESOLVCONF=/host/etc/resolv.conf
 
 
