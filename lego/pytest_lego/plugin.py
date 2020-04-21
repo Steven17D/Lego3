@@ -51,7 +51,7 @@ def pytest_configure(config: Any) -> None:
 
     config.addinivalue_line(
         'markers',
-        'Lego: Lego mark used in order to supply components by query'
+        'lego: Lego mark used in order to supply components by query'
     )
 
 
