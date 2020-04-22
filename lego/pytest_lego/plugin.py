@@ -3,43 +3,90 @@
 """
 Implementation of the pytest-lego plugin.
 """
-from typing import Any
+from typing import Any, List
 
-import asyncio
 import functools
 import pytest
 import rpyc
 
 from . import component_factory
+from Lego3.components.core import Core
 
 MARK = 'lego'
 
 
 @pytest.fixture(scope='session')
-def connections(request) -> rpyc.Connection:
+def lego_manager(request) -> rpyc.Connection:
     """Provides the connection to the lego manager.
 
-    The 'connections' fixture doesn't provide components but provides a way
-    for our test wrapper to create components.
-    Using the lego manager API the test wrapper acquires the components and
-    provide them to the original test function.
-
     Args:
-        request: A PyTest fixture helper.
+        request: A PyTest fixture helper, with information on the requesting test function.
 
     Returns:
         RPyC connection to LegoManager service.
     """
 
     assert MARK in request.config.inicfg.config.sections, f'Missing {MARK} section in inifile'
-    assert 'lego_manager' in request.config.inicfg.config.sections[MARK], (
-        'Missing lego_manager hostname in inifile')
 
-    manager = request.config.inicfg.config.sections[MARK]['lego_manager']
-    lego_manager = rpyc.connect(host=manager, port=18861)
+    try:
+        manager_hostname = request.config.inicfg.config.sections[MARK]['lego_manager_hostname']
+        manager_port = request.config.inicfg.config.sections[MARK]['lego_manager_port']
+    except KeyError as e:
+        missing_key = e.args[0]
+        raise KeyError(f'Missing {missing_key} under {MARK} section in inifile')
+
+    lego_manager = rpyc.connect(manager_hostname, manager_port)
     request.addfinalizer(lego_manager.close)
 
     return lego_manager
+
+
+@pytest.fixture()
+def components(request, lego_manager) -> List[Core]:
+    """Provides the components requested in corresponding lego mark for the test.
+
+    This fixture provides the components requested by the test function.
+    To provide arguments to the components, one should define [component] section in pytest config file.
+    The fixture splits the components given in mark.lego by the word 'and'.
+
+    Typical usage example:
+
+    @pytest.mark.lego('zebra.alice and elephant.bob')
+    def test_default_sizes(self, components):
+        zebra, elephant, *_ = components
+        assert zebra.size == elephant.size
+
+    Example for configuration in pytest.ini:
+    [zebra.alice]
+    hostname = zebra
+    username = admin
+    password = password
+    [elephant.bob]
+    hostname=192.168.100.11
+    name = Bob
+    size = 120
+
+    Args:
+        request: A PyTest fixture helper, with information on the requesting test function.
+        lego_manager: An RPyC connection to LegoManager service.
+
+    Returns:
+        List of components requested in lego.mark.
+    """
+    print(request.fixturenames)
+
+    lego_mark = request.node.get_closest_marker(MARK)
+    if lego_mark is None:
+        # The test doesn't have lego mark.
+        return None
+
+    with component_factory.acquire_components(
+            lego_manager,
+            request.config,
+            *lego_mark.args,
+            **lego_mark.kwargs
+    ) as components:
+        yield components
 
 
 def pytest_configure(config: Any) -> None:
@@ -51,7 +98,7 @@ def pytest_configure(config: Any) -> None:
 
     config.addinivalue_line(
         'markers',
-        'lego: Lego mark used in order to supply components by query'
+        f'{MARK}: Lego mark used in order to supply components by query'
     )
 
 
@@ -84,49 +131,3 @@ def pytest_fixture_setup(fixturedef, request):
                     teardown_class()
 
     fixturedef.func = setup_class_wrapper
-
-
-@pytest.mark.tryfirst
-def pytest_pyfunc_call(pyfuncitem: pytest.Item):
-    """Wraps the test function which is stored in `item.obj`.
-
-    The wrapper uses the fixture in order to create the components and pass to the test.
-
-    Args:
-        pyfuncitem: The pytest test object.
-    """
-
-    lego_mark = pyfuncitem.get_closest_marker(MARK)
-    if lego_mark is None:
-        # The test doesn't have lego mark
-        return
-
-    test = pyfuncitem.obj
-    if asyncio.iscoroutinefunction(test):
-        @functools.wraps(test)
-        async def test_wrapper(**kwargs):
-            return await async_run_test(test, lego_mark, lego_manager=kwargs['connections'])
-
-    else:
-        @functools.wraps(test)
-        def test_wrapper(**kwargs):
-            return run_test(test, lego_mark, lego_manager=kwargs['connections'])
-
-    test_wrapper.pytestmark = test.pytestmark
-    pyfuncitem.obj = test_wrapper
-
-
-def run_test(test_function, mark, lego_manager):
-    """Runs the test function with wrapped components."""
-
-    with component_factory.acquire_connections(
-            lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
-        return test_function(wrapped_connections)
-
-
-async def async_run_test(test_function, mark, lego_manager):
-    """Runs the test function with wrapped components and await it."""
-
-    with component_factory.acquire_connections(
-            lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
-        return await test_function(wrapped_connections)

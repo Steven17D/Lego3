@@ -48,6 +48,7 @@ class SSHConnection(BaseConnection):
         # TODO: check why initializing machine doesn't work.
         # self._machine = plumbum.SshMachine(hostname, username, password)
         self._server = None
+        self._machine = None
 
         try:
             # Checks if machine already runs RPyC SlaveService.
@@ -71,7 +72,10 @@ class SSHConnection(BaseConnection):
 
         if self._server is not None:
             self._server.close()
-        self._machine.close()
+
+        # TODO: remove if statement after solving above TODO (check why plumbum.SshMachine doesn't work).
+        if self._machine is not None:
+            self._machine.close()
 
 
 class TelnetConnection(BaseConnection):
