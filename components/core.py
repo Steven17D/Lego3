@@ -1,12 +1,14 @@
 """
-The lib contains all the logic
+Component object provides the API which tests and libs will use to run code on the component.
+Core class is the base class of all the components, and in this class the RPyC connection will be initiated.
 """
+from __future__ import annotations
 from typing import Tuple, Optional, Type
 from types import TracebackType
 
-import plumbum
 import rpyc
-from rpyc.utils.zerodeploy import DeployedServer
+
+from .connections import BaseConnection
 
 
 class Core:
@@ -16,18 +18,16 @@ class Core:
     In order to extend the API implement a wrapping Lib.
     """
 
-    __slots__ = ['_conn']
+    def __init__(self, connection: BaseConnection) -> None:
+        """Initiates the connection to remote machine.
 
-    def __init__(self, hostname: str) -> None:
-        try:
-            self._conn = rpyc.classic.connect(hostname, keepalive=True)
-        except ConnectionRefusedError:
-            with plumbum.SshMachine(
-                    hostname, user="root", password="password") as machine:
-                with DeployedServer(machine) as server:
-                    self._conn = server.classic_connect()
+        Args:
+            connection: The connection to the component.
+        """
+        self._remote_connection = connection
+        self._rpyc = self._remote_connection.rpyc_connection
 
-    def __enter__(self) -> 'Core':
+    def __enter__(self) -> Core:
         """Enabling context manager in this class.
 
         Returns:
@@ -44,62 +44,51 @@ class Core:
         """Closes the connection at the exit from the context manager.
 
         Args:
-            exc_type: Execption type.
+            exc_type: Exception type.
             exc_value: Exception value.
             traceback: Exception traceback.
         """
 
-        self._conn.close()
+        self._remote_connection.close()
 
     @property
     def connection(self) -> rpyc.core.protocol.Connection:
-        """Gets the RPyC connection to component.
+        """RPyc connection to the component."""
 
-        Returns:
-            Requested RPyC connection.
-        """
-
-        return self._conn
+        return self._rpyc
 
     def getpid(self) -> int:
         """Gets the PID of the service process."""
 
-        return self._conn.modules.os.getpid()
+        return self._rpyc.modules.os.getpid()
 
     def send_packet(self, addr: Tuple[str, int], data: bytes) -> None:
         """Sends an UDP packet.
 
         Args:
-            addr - The address (IP and port) to send the packet to.
-            data - The data to send.
+            addr: The address (IP and port) to send the packet to.
+            data: The data to send.
         """
 
-        R_AF_INET = self._conn.modules['socket'].AF_INET
-        R_SOCK_DGRAM = self._conn.modules['socket'].SOCK_DGRAM
-        r_socket = self._conn.modules['socket']
-        remote_socket = r_socket.socket(R_AF_INET, R_SOCK_DGRAM)
+        r_socket = self._rpyc.modules['socket']
+        remote_socket = r_socket.socket(r_socket.AF_INET, r_socket.R_SOCK_DGRAM)
         remote_socket.sendto(data, addr)
         remote_socket.close()
 
     def run_command(self, command: str) -> str:
-        """Runs a bash command on the remote machind.
+        """Runs a bash command on the remote machine.
 
         Args:
-            command - The command to run.
+            command: The bash command to run.
 
         Returns:
             The output of the command.
         """
 
-        return self._conn.modules["subprocess"].check_output(command.split())
-
-    def reboot(self) -> int:
-        """Reboots the remote machine."""
-
-        return self._conn.modules.os.system("reboot -f")
+        return self._rpyc.modules["subprocess"].check_output(command.split())
 
     def get_ip(self) -> str:
         """Gets the IP of the remote machine."""
 
-        hostname = self._conn.modules['socket'].gethostname()
-        return self._conn.modules['socket'].gethostbyname(hostname)
+        hostname = self._rpyc.modules['socket'].gethostname()
+        return self._rpyc.modules['socket'].gethostbyname(hostname)
