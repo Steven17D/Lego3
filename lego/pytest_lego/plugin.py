@@ -4,7 +4,6 @@
 Implementation of the pytest-lego plugin.
 """
 from typing import Any, List
-import contextlib
 import functools
 
 import pytest
@@ -42,8 +41,8 @@ def lego_manager(request) -> rpyc.Connection:
     return lego_manager
 
 
-@contextlib.contextmanager
-def get_components(request, lego_manager) -> List[BaseComponent]:
+@pytest.fixture(scope='function')
+def components(request, lego_manager) -> List[BaseComponent]:
     """Provides the components requested in corresponding lego mark for the test.
 
     This fixture provides the components requested by the test function.
@@ -86,36 +85,6 @@ def get_components(request, lego_manager) -> List[BaseComponent]:
             *lego_mark.args,
             **lego_mark.kwargs
     ) as components:
-        yield components
-
-
-@pytest.fixture(scope='function')
-def components_func(request, lego_manager) -> List[BaseComponent]:
-    """Provides the components get_components fixture with scope=function.
-
-    Args:
-        request: A PyTest fixture helper, with information on the requesting test function.
-        lego_manager: An RPyC connection to LegoManager service.
-
-    Returns:
-        List of components requested in lego.mark.
-    """
-    with get_components(request, lego_manager) as components:
-        yield components
-
-
-@pytest.fixture(scope='class')
-def components_cls(request, lego_manager) -> List[BaseComponent]:
-    """Provides the components get_components fixture with scope=class.
-
-    Args:
-        request: A PyTest fixture helper, with information on the requesting test function.
-        lego_manager: An RPyC connection to LegoManager service.
-
-    Returns:
-        List of components requested in lego.mark.
-    """
-    with get_components(request, lego_manager) as components:
         yield components
 
 

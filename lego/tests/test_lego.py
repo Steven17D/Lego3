@@ -4,20 +4,20 @@ import pytest
 
 
 @pytest.mark.lego("giraffe.bob", exclusive=False)
-def test_sync(components_func):
-    print(f"components a: {components_func}")
+def test_sync(components):
+    print(f"components a: {components}")
 
 
 @pytest.mark.lego("zebra.alice")
-async def test_async(components_func):
-    print(f"components b: {components_func}")
+async def test_async(components):
+    print(f"components b: {components}")
 
 
 class TestsSpecA:
     @classmethod
     @pytest.mark.lego('giraffe.bob')
-    def setup_class(cls, components_cls):
-        cls.components = components_cls
+    def setup_class(cls, components):
+        cls.components = components
         print(f"setup class with {cls.components}")
 
     @classmethod
@@ -31,19 +31,19 @@ class TestsSpecA:
         print(f"teardown method {self.components}")
 
     @pytest.mark.lego('zebra.alice')
-    def test_a(self, components_func):
-        print(f"Using: {components_func} and {self.components}")
+    def test_a(self, components):
+        print(f"Using: {components} and {self.components}")
 
     @pytest.mark.lego('zebra.alice')
-    def test_b(self, components_func):
-        print(f"Using: {components_func} and {self.components}")
+    def test_b(self, components):
+        print(f"Using: {components} and {self.components}")
 
 
 class TestsSpecB:
     @classmethod
     @pytest.mark.lego('giraffe.bob')
-    def setup_class(cls, components_cls):
-        cls.components = components_cls
+    def setup_class(cls, components):
+        cls.components = components
         print(f"setup class with {cls.components}")
 
     @classmethod
@@ -51,23 +51,23 @@ class TestsSpecB:
         print(f"teardown with {cls.components}")
 
     @pytest.mark.lego('zebra.alice')
-    def test_a(self, components_func):
-        print(f"Using: {components_func} and {self.components}")
+    def test_a(self, components):
+        print(f"Using: {components} and {self.components}")
 
 
 class TestsSpecWithoutSetupClass:
     @pytest.mark.lego('zebra.alice')
-    def test_a(self, components_func):
-        print(f"Using: {components_func}")
+    def test_a(self, components):
+        print(f"Using: {components}")
 
 
 class TestsSpecSetupClassWithoutTeardown:
     @classmethod
     @pytest.mark.lego('giraffe.bob')
-    def setup_class(cls, components_cls):
-        cls.connections = components_cls
+    def setup_class(cls, components):
+        cls.connections = components
         print(f"setup class with {cls.connections}")
 
     @pytest.mark.lego('zebra.alice')
-    def test_a(self, components_func):
-        print(f"Using: {components_func}")
+    def test_a(self, components):
+        print(f"Using: {components}")
