@@ -12,7 +12,7 @@ import rpyc
 from . import component_factory
 from lego.components import BaseComponent
 
-MARK = 'lego'
+LEGO_MARK = 'lego'
 
 
 @pytest.fixture(scope='session')
@@ -26,14 +26,14 @@ def lego_manager(request) -> rpyc.Connection:
         RPyC connection to LegoManager service.
     """
 
-    assert MARK in request.config.inicfg.config.sections, f'Missing {MARK} section in inifile'
+    assert LEGO_MARK in request.config.inicfg.config.sections, f'Missing {LEGO_MARK} section in inifile'
 
     try:
-        manager_hostname = request.config.inicfg.config.sections[MARK]['lego_manager_hostname']
-        manager_port = request.config.inicfg.config.sections[MARK]['lego_manager_port']
+        manager_hostname = request.config.inicfg.config.sections[LEGO_MARK]['lego_manager_hostname']
+        manager_port = request.config.inicfg.config.sections[LEGO_MARK]['lego_manager_port']
     except KeyError as e:
         missing_key = e.args[0]
-        raise KeyError(f'Missing {missing_key} under {MARK} section in inifile')
+        raise KeyError(f'Missing {missing_key} under {LEGO_MARK} section in inifile')
 
     lego_manager = rpyc.connect(manager_hostname, manager_port)
     request.addfinalizer(lego_manager.close)
@@ -41,7 +41,7 @@ def lego_manager(request) -> rpyc.Connection:
     return lego_manager
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def components(request, lego_manager) -> List[BaseComponent]:
     """Provides the components requested in corresponding lego mark for the test.
 
@@ -73,7 +73,7 @@ def components(request, lego_manager) -> List[BaseComponent]:
         List of components requested in lego.mark.
     """
 
-    lego_mark = request.node.get_closest_marker(MARK)
+    lego_mark = request.node.get_closest_marker(LEGO_MARK)
     if lego_mark is None:
         # The test doesn't have the 'lego' mark.
         return None
@@ -96,7 +96,7 @@ def pytest_configure(config: Any) -> None:
 
     config.addinivalue_line(
         'markers',
-        f'{MARK}: Lego mark used in order to supply components by query'
+        f'{LEGO_MARK}: Lego mark used in order to supply components by query'
     )
 
 
@@ -112,13 +112,13 @@ def pytest_fixture_setup(fixturedef, request):
     if marks is None:
         return
 
-    mark = next(mark for mark in marks if MARK == mark.name)
+    mark = next(mark for mark in marks if LEGO_MARK == mark.name)
     if mark is None:
         return
 
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
-        lego_manager = request.getfixturevalue('connections')
+        lego_manager = request.getfixturevalue('components')
         with component_factory.acquire_connections(lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
             test_class.setup_class(wrapped_connections, *args, **kwargs)
             try:

@@ -1,4 +1,5 @@
 """Zebra component is the API to Zebra component."""
+# TODO: add to docstring what is a zebra component?
 
 import asyncio
 import functools

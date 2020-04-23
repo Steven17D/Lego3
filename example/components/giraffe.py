@@ -1,14 +1,29 @@
-"""Elephant lib is API to elephant component."""
+"""Giraffe component is the API to Giraffe component."""
+# TODO: add to docstring what is a Giraffe component?
+
 from typing import Any
 
 import contextlib
 import watchdog.events
 
-from Lego3.components.core import Core
+from lego.components import RPyCComponent
+from lego.connections import RPyCConnection
 
 
-class Giraffe(Core):
-    """An extended library for Giraffe component."""
+class Giraffe(RPyCComponent):
+    """An extended interface for Giraffe component."""
+
+    def __init__(self, hostname, username: str, password: str) -> None:
+        """Initialize RPyC connection over SSH.
+
+        Args:
+            hostname: Hostname of the component.
+            username: Username for SSH login.
+            password: Password for SSH login.
+        """
+        super().__init__(RPyCConnection(hostname, username, password))
+
+        self._rpyc_conn = self.connection.rpyc_connection
 
     @contextlib.contextmanager
     def monitor_logs(
@@ -21,10 +36,10 @@ class Giraffe(Core):
         Args:
             event_handler: Event handler that called with every
                 incoming file system event.
-            directory: Diractory to watch on.
+            directory: Directory to watch on.
         """
 
-        r_observer = self.connection.modules['watchdog.observers'].Observer()
+        r_observer = self._rpyc_conn.modules['watchdog.observers'].Observer()
         r_observer.schedule(event_handler, directory)
         r_observer.start()
         try:

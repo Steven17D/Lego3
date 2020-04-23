@@ -1,6 +1,13 @@
 """
-TODO: Fix docstring.
-Runs on central server.
+Lego manager controls and allocates setup for tests.
+Each test requests relevant components from lego manager, and the lego manager checks if there is an available setup
+and allocates it.
+Main features:
+1. Controls the timing of the tests to utilize the setup for maximum usage.
+2. Provides information on the state and statistics of different components in the setup.
+The manager runs on a central server.
+
+Note: Most of the features mentioned above aren't implemented yet.
 """
 from typing import List, Dict, Any
 
@@ -100,7 +107,7 @@ class LegoManager(rpyc.Service):
             Desired components and the corresponding path to their class objects.
         """
 
-        # TODO: This dictionary will be pulled in the future from Lego's DB/management files.
+        # TODO: Get this dictionary from Lego's DB/management files.
         components_to_class_path = {
             'zebra': 'Lego3.example.components.zebra.Zebra',
             'giraffe': 'Lego3.example.components.giraffe.Giraffe',
