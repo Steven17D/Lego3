@@ -104,14 +104,13 @@ class RPyCConnection(SSHConnection):
         """
         super().__init__(hostname, username, password)
 
-        self._server = None
         try:
             # Checks if the machine already runs RPyC SlaveService.
             self._conn = rpyc.classic.connect(hostname, keepalive=True)
         except ConnectionRefusedError:
             # Upload RPyC and start SlaveService in a temporarily directory.
             with DeployedServer(self.shell) as server:
-            self._conn = self._server.classic_connect()
+                self._conn = server.classic_connect()
 
     @property
     def rpyc_connection(self) -> rpyc.core.protocol.Connection:
@@ -123,8 +122,6 @@ class RPyCConnection(SSHConnection):
         """Closes RPyC connections."""
 
         self._conn.close()
-        if self._server is not None:
-            self._server.close()
 
         super().close()
 

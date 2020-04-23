@@ -23,11 +23,11 @@ class Tetanus:
             port: Port to echo on.
         """
 
-        r_popen = giraffe.connection.modules['subprocess'].Popen
+        r_popen = giraffe.connection.rpyc_connection.modules['subprocess'].Popen
         self._tool_process = r_popen(
             tool.format(port),
             shell=True,
-            preexec_fn=giraffe.connection.modules.os.setsid)
+            preexec_fn=giraffe.connection.rpyc_connection.modules.os.setsid)
 
     def uninstall(self, giraffe: Giraffe) -> None:
         """Uninstall the echo server.
@@ -36,6 +36,6 @@ class Tetanus:
             giraffe: Component API to uninstall tool.
         """
 
-        pgrp = giraffe.connection.modules.os.getpgid(self._tool_process.pid)
-        giraffe.connection.modules.os.killpg(
-            pgrp, giraffe.connection.modules.signal.SIGINT)
+        pgrp = giraffe.connection.rpyc_connection.modules.os.getpgid(self._tool_process.pid)
+        giraffe.connection.rpyc_connection.modules.os.killpg(
+            pgrp, giraffe.connection.rpyc_connection.modules.signal.SIGINT)

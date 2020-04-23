@@ -111,7 +111,6 @@ class LegoManager(rpyc.Service):
         components_to_class_path = {
             'zebra': 'Lego3.example.components.zebra.Zebra',
             'giraffe': 'Lego3.example.components.giraffe.Giraffe',
-            'elephant': 'Lego3.example.components.elephant.Elephant'
         }
         components = (component.strip() for component in query.split('and'))
 

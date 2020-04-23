@@ -23,14 +23,14 @@ class TestsSpecGiraffe:
     _giraffe: Giraffe = None # type: ignore
 
     @classmethod
-    def setup_class(cls, connections: List[Giraffe]) -> None:
+    def setup_class(cls, components: List[Giraffe]) -> None:
         """Initializes the variables once in the start of the spec.
 
         Args:
-            connections: Required components.
+            components: Required components.
         """
 
-        cls._giraffe, *_ = connections
+        cls._giraffe, *_ = components
 
 
 class TestsSpecTetanus(TestsSpecGiraffe):
@@ -45,15 +45,15 @@ class TestsSpecTetanus(TestsSpecGiraffe):
     _echo_port: int
 
     @classmethod
-    @pytest.mark.lego('giraffe')
-    def setup_class(cls, connections: List[Giraffe]) -> None:
+    @pytest.mark.lego('giraffe.bob')
+    def setup_class(cls, components: List[Giraffe]) -> None:
         """Initializes the variables once in the start of the spec.
 
         Args:
-            connections: Required components.
+            components: Required components.
         """
 
-        super().setup_class(connections)
+        super().setup_class(components)
 
         cls._tetanus_lib = Tetanus()
         cls._echo_port = 1337
@@ -68,48 +68,48 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
         self._tetanus_lib.uninstall(TestsSpecTetanus._giraffe)
 
-    @pytest.mark.lego('zebra')
-    async def test_send_and_recv(self, connections): # type: ignore
+    @pytest.mark.lego('zebra.alice')
+    async def test_send_and_recv(self, components): # type: ignore
         "The test send packets and expect them back."""
 
-        zebra, *_ = connections
+        zebra, *_ = components
         await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
 
-    @pytest.mark.lego('zebra and elephant')
-    async def test_multi_send_and_recv(self, connections): # type: ignore
+    @pytest.mark.lego('zebra.alice and zebra.logan')
+    async def test_multi_send_and_recv(self, components): # type: ignore
         """The test send packets from multiple components and
             expect them back.
         """
 
         tasks = []
 
-        for connection in connections:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
 
         await asyncio.gather(*tasks)
 
-    @pytest.mark.lego('zebra')
-    async def test_monitor_send_and_recv(self, connections): # type: ignore
+    @pytest.mark.lego('zebra.alice')
+    async def test_monitor_send_and_recv(self, components): # type: ignore
         """The test send packets and expect them back while validating no bad
             logs written.
         """
 
-        zebra, *_ = connections
+        zebra, *_ = components
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
             await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
 
-    @pytest.mark.lego('zebra and elephant')
-    async def test_multi_monitor_send_and_receive(self, connections): # type: ignore
+    @pytest.mark.lego('zebra.alice and zebra.logan')
+    async def test_multi_monitor_send_and_receive(self, components): # type: ignore
         """The test send packets from multiple components and
             expect them back, while validating no bad logs written.
         """
 
         tasks = []
 
-        for connection in connections:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
 
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
             await asyncio.gather(*tasks)

@@ -65,8 +65,8 @@ class TestsSpecSetupClassWithoutTeardown:
     @classmethod
     @pytest.mark.lego('giraffe.bob')
     def setup_class(cls, components):
-        cls.connections = components
-        print(f"setup class with {cls.connections}")
+        cls.components = components
+        print(f"setup class with {cls.components}")
 
     @pytest.mark.lego('zebra.alice')
     def test_a(self, components):

@@ -127,8 +127,8 @@ def pytest_fixture_setup(fixturedef, request):
                 request.config,
                 *lego_mark.args,
                 **lego_mark.kwargs
-        ) as wrapped_connections:
-            test_class.setup_class(wrapped_connections, *args, **kwargs)
+        ) as wrapped_components:
+            test_class.setup_class(wrapped_components, *args, **kwargs)
             try:
                 yield
             finally:
