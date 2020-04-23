@@ -1,6 +1,6 @@
 """
 Component object provides the API which tests and libs will use to run code on the component.
-Core class is the base class of all the components, and in this class the RPyC connection will be initiated.
+BaseComponent class is the base class of all other components, it has basic functionality which can run cross platform.
 """
 from __future__ import annotations
 from typing import Tuple, Optional, Type
@@ -10,8 +10,10 @@ import rpyc
 
 from .connections import BaseConnection
 
+_SocketAddress = Tuple[str, int]
 
-class Core:
+
+class BaseComponent:
     """
     Wrapper for RPyC connection.
     Provides simple API which is generic for all RPyC connections.
@@ -22,13 +24,13 @@ class Core:
         """Initiates the connection to remote machine.
 
         Args:
-            connection: The connection to the component.
+            connection: Connection to the component.
         """
         self._remote_connection = connection
         self._rpyc = self._remote_connection.rpyc_connection
 
-    def __enter__(self) -> Core:
-        """Enabling context manager in this class.
+    def __enter__(self) -> BaseComponent:
+        """Allowing the use of 'with' statement with components objects.
 
         Returns:
             Created class instance.
@@ -62,7 +64,7 @@ class Core:
 
         return self._rpyc.modules.os.getpid()
 
-    def send_packet(self, addr: Tuple[str, int], data: bytes) -> None:
+    def send_packet(self, addr: _SocketAddress, data: bytes) -> None:
         """Sends an UDP packet.
 
         Args:

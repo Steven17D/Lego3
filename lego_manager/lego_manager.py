@@ -1,10 +1,12 @@
 """
-Runs on central server
+Runs on central server.
 """
-from typing import List, Dict, Tuple, Iterator
+from typing import List, Dict, Tuple, Any
 
 import contextlib
 import rpyc
+
+_ComponentsToClassPath = Dict[str, str]
 
 
 class LegoManager(rpyc.Service):
@@ -13,10 +15,11 @@ class LegoManager(rpyc.Service):
     Should manage the permissions for tests to run on setup.
     Stores its database using Rest API.
     """
-    __slots__ = ("_allocations", "_bg_threads")
+    # Defining the name of RPyC service.
     ALIASES = ["LegoManager"]
+    DEFAULT_PORT = 18861
 
-    def __init__(self, *args: str, **kwargs: str) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._allocations: Dict = dict()
         self._bg_threads: Dict = dict()
@@ -42,83 +45,106 @@ class LegoManager(rpyc.Service):
     @contextlib.contextmanager
     def _allocation(
             self,
-            connections: List[Tuple[str, str]],
+            query: str,
             exclusive: bool
-        ) -> Iterator[List[Tuple[str, str]]]:
+    ) -> _ComponentsToClassPath:
         """Manages the components allocations.
 
         Args:
-            connections: Required components.
+            query: A query that describes the desired setup.
             exclusive: Whether to lock the required setup.
 
         Yields:
             Required components.
         """
 
-        del exclusive # TODO: Add this functionality.
+        del exclusive  # TODO: Add this functionality.
 
-        self._allocate(connections)
+        components = query.split('and')
+
+        self._allocate(components)
         try:
-            yield connections
+            yield self._get_components_path(query)
         finally:
-            self._deallocate(connections)
+            self._deallocate(components)
 
-    def _allocate(self, connections: List[Tuple[str, str]]) -> None:
+    def _allocate(self, components: List[str]) -> None:
         """Allocates the desired components if available.
 
         Args:
-            connections: Desired components.
+            components: Desired components.
         """
 
-        for connection in connections:
-            self._allocations[connection] = True
+        for component in components:
+            self._allocations[component] = True
 
-
-    def _deallocate(self, connections: List[Tuple[str, str]]) -> None:
+    def _deallocate(self, components: List[str]) -> None:
         """Deallocates the desired components.
 
         Args:
-            connections: Unneeded components.
+            components: Unneeded components.
         """
 
-        for connection in connections:
-            del self._allocations[connection]
+        for component in components:
+            del self._allocations[component]
 
     @staticmethod
-    def _run_query(query: str) -> List[Tuple[str, str]]:
-        """Runs the requested setup query on the setup management files
-        and returns the available components libs and hostnames.
+    def _get_components_path(query: str) -> _ComponentsToClassPath:
+        """Maps between components names to the path of their python class objects.
 
         Args:
-            query: A query describes the desired setup.
+            query: A query that describes the desired setup.
 
         Returns:
-            Desired hostnames and libraries.
+            Desired components and the corresponding path to their class objects.
         """
-        # TODO: Run query and return results in allocation
 
-        hostname_to_lib = {
+        components_to_class_path = {
             'zebra': 'Lego3.example.components.zebra.Zebra',
             'giraffe': 'Lego3.example.components.giraffe.Giraffe',
             'elephant': 'Lego3.example.components.elephant.Elephant'
         }
-        hostnames = (hostname.strip() for hostname in query.split('and'))
+        components = (component.strip() for component in query.split('and'))
 
-        return [(hostname, hostname_to_lib[hostname]) for hostname in hostnames]
+        return {component: components_to_class_path[component.split('.')[0]] for component in components}
 
-    def exposed_acquire(self, query: str, exclusive: bool): # type: ignore
+    @staticmethod
+    def _run_query(query: str) -> str:
+        """Find available setup according to given query.
+
+        Runs the requested setup query on the setup management files, and add instance names to components
+        with unspecified names.
+        For example, query given - 'zebra.alice and elephant', query returned - 'zebra.alice and elephant.bob'.
+
+        Args:
+            query: A query that describes the desired setup.
+
+        Returns:
+            Final components query for the test. Each component should be built from component class and instance name.
+        """
+        # TODO: Run query and return results in allocation
+        return query
+
+    def exposed_acquire_setup(self, query: str, exclusive: bool):  # type: ignore
         """Acquired the desired setup if available.
 
         This function also will store all of the data about the setup usage.
 
         Args:
-            query: A query describes the desired setup.
-            exclusive: Weather the required setup needed exclusivly.
+            query: A query that describes the desired setup.
+            The query syntax is -
+                1. The components should be splitted by the word 'and'.
+                2. The format should be <component_class>.<instance_name>, or only <component_class> if
+                specific instance isn't needed.
+            Example for a query - 'zebra.alice and elephant.bob and giraffe.4'.
+
+            exclusive: Whether the required setup is needed exclusively.
 
         Returns:
-            Allocated requested setup as list of hostnames and libraries.
+            Allocated requested setup as list of tuples made of
+            components names and corresponding paths to Components classes.
+            e.g. [('zebra.alice', 'Lego3.example.components.zebra.Zebra'), ...]
         """
-
         return self._allocation(LegoManager._run_query(query), exclusive)
 
 
@@ -126,10 +152,12 @@ def main() -> None:
     """Starts Lego server."""
 
     rpyc.lib.setup_logger()
-    from rpyc.utils.server import ThreadedServer # pylint: disable=import-outside-toplevel
+    from rpyc.utils.server import ThreadedServer  # pylint: disable=import-outside-toplevel
     # Note: all connection will use the same LegoManager
-    lego_server = ThreadedServer(LegoManager(), port=18861)
+    lego_server = ThreadedServer(LegoManager(), port=LegoManager.DEFAULT_PORT,
+                                 protocol_config={'allow_public_attrs': True})
     lego_server.start()
+
 
 if __name__ == "__main__":
     main()

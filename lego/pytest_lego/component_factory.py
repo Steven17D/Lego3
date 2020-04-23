@@ -2,16 +2,16 @@
 Supply components to the plugin by acquiring them in the lego manager,
 then getting their arguments from pytest configuration (pytest.ini file).
 """
-from typing import Iterator, List, Any, Type
+from typing import List, Any, Type
 
 import contextlib
 import importlib
 import rpyc
 
-from Lego3.components.core import Core
+from Lego3.components.base_component import BaseComponent
 
 
-def get_component_class(component_path: str) -> Type[Core]:
+def get_component_class(component_path: str) -> Type[BaseComponent]:
     """Gets the requested component's class object.
 
     Args:
@@ -25,7 +25,7 @@ def get_component_class(component_path: str) -> Type[Core]:
     return getattr(importlib.import_module('.'.join(module)), component_class)
 
 
-def get_component(component_name: str, component_path: str, pytest_config: Any) -> Core:
+def get_component(component_name: str, component_path: str, pytest_config: Any) -> BaseComponent:
     """Initialize the component object.
 
     Args:
@@ -49,7 +49,7 @@ def acquire_components(
         pytest_config: Any,
         query: str,
         exclusive: bool = True
-) -> Iterator[List[Core]]:
+) -> List[BaseComponent]:
     """Creates components based on the requested setup.
 
     Args:
@@ -62,14 +62,10 @@ def acquire_components(
         The requested components.
     """
 
-    with lego_manager.root.acquire(query, exclusive) as available_components:
+    with lego_manager.root.acquire_setup(query, exclusive) as available_components:
         with contextlib.ExitStack() as stack:
-            # yield [
-            #     stack.enter_context(get_component(component_name, component_path, pytest_config))  # type: ignore
-            #     for component_name, component_path in components
-            # ]
             components = []
-            for component_name, component_path in available_components:
+            for component_name, component_path in available_components.items():
                 component = get_component(component_name, component_path, pytest_config)
                 components.append(stack.enter_context(component))
             yield components

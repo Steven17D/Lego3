@@ -10,7 +10,7 @@ import pytest
 import rpyc
 
 from . import component_factory
-from Lego3.components.core import Core
+from Lego3.components.base_component import BaseComponent
 
 MARK = 'lego'
 
@@ -42,12 +42,11 @@ def lego_manager(request) -> rpyc.Connection:
 
 
 @pytest.fixture()
-def components(request, lego_manager) -> List[Core]:
+def components(request, lego_manager) -> List[BaseComponent]:
     """Provides the components requested in corresponding lego mark for the test.
 
     This fixture provides the components requested by the test function.
     To provide arguments to the components, one should define [component] section in pytest config file.
-    The fixture splits the components given in mark.lego by the word 'and'.
 
     Typical usage example:
 
@@ -77,7 +76,7 @@ def components(request, lego_manager) -> List[Core]:
 
     lego_mark = request.node.get_closest_marker(MARK)
     if lego_mark is None:
-        # The test doesn't have lego mark.
+        # The test doesn't have the 'lego' mark.
         return None
 
     with component_factory.acquire_components(
