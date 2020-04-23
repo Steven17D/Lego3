@@ -1,7 +1,8 @@
 """
+TODO: Fix docstring.
 Runs on central server.
 """
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Any
 
 import contextlib
 import rpyc
@@ -99,6 +100,7 @@ class LegoManager(rpyc.Service):
             Desired components and the corresponding path to their class objects.
         """
 
+        # TODO: This dictionary will be pulled in the future from Lego's DB/management files.
         components_to_class_path = {
             'zebra': 'Lego3.example.components.zebra.Zebra',
             'giraffe': 'Lego3.example.components.giraffe.Giraffe',
@@ -122,7 +124,6 @@ class LegoManager(rpyc.Service):
         Returns:
             Final components query for the test. Each component should be built from component class and instance name.
         """
-        # TODO: Run query and return results in allocation
         return query
 
     def exposed_acquire_setup(self, query: str, exclusive: bool):  # type: ignore
@@ -154,8 +155,11 @@ def main() -> None:
     rpyc.lib.setup_logger()
     from rpyc.utils.server import ThreadedServer  # pylint: disable=import-outside-toplevel
     # Note: all connection will use the same LegoManager
-    lego_server = ThreadedServer(LegoManager(), port=LegoManager.DEFAULT_PORT,
-                                 protocol_config={'allow_public_attrs': True})
+    lego_server = ThreadedServer(
+        LegoManager(),
+        port=LegoManager.DEFAULT_PORT,
+        protocol_config={'allow_public_attrs': True}
+    )
     lego_server.start()
 
 

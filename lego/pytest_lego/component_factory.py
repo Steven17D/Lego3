@@ -8,10 +8,10 @@ import contextlib
 import importlib
 import rpyc
 
-from Lego3.components.base_component import BaseComponent
+from lego.components import BaseComponent
 
 
-def get_component_class(component_path: str) -> Type[BaseComponent]:
+def _get_component_class(component_path: str) -> Type[BaseComponent]:
     """Gets the requested component's class object.
 
     Args:
@@ -25,7 +25,7 @@ def get_component_class(component_path: str) -> Type[BaseComponent]:
     return getattr(importlib.import_module('.'.join(module)), component_class)
 
 
-def get_component(component_name: str, component_path: str, pytest_config: Any) -> BaseComponent:
+def _get_component(component_name: str, component_path: str, pytest_config: Any) -> BaseComponent:
     """Initialize the component object.
 
     Args:
@@ -39,7 +39,7 @@ def get_component(component_name: str, component_path: str, pytest_config: Any) 
     # A dictionary with all the arguments the component should receive in __init__.
     component_config = pytest_config.inicfg.config.sections[component_name]
 
-    component_class = get_component_class(component_path)
+    component_class = _get_component_class(component_path)
     return component_class(**component_config)
 
 
@@ -66,6 +66,6 @@ def acquire_components(
         with contextlib.ExitStack() as stack:
             components = []
             for component_name, component_path in available_components.items():
-                component = get_component(component_name, component_path, pytest_config)
+                component = _get_component(component_name, component_path, pytest_config)
                 components.append(stack.enter_context(component))
             yield components

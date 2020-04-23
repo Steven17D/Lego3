@@ -10,7 +10,7 @@ import pytest
 import rpyc
 
 from . import component_factory
-from Lego3.components.base_component import BaseComponent
+from lego.components import BaseComponent
 
 MARK = 'lego'
 
@@ -72,7 +72,6 @@ def components(request, lego_manager) -> List[BaseComponent]:
     Returns:
         List of components requested in lego.mark.
     """
-    print(request.fixturenames)
 
     lego_mark = request.node.get_closest_marker(MARK)
     if lego_mark is None:

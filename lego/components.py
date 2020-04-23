@@ -1,23 +1,21 @@
 """
 Component object provides the API which tests and libs will use to run code on the component.
-BaseComponent class is the base class of all other components, it has basic functionality which can run cross platform.
 """
 from __future__ import annotations
 from typing import Tuple, Optional, Type
 from types import TracebackType
+import abc
 
-import rpyc
-
-from .connections import BaseConnection
+from .connections import BaseConnection, RPyCConnection
 
 _SocketAddress = Tuple[str, int]
 
 
-class BaseComponent:
+class BaseComponent(metaclass=abc.ABCMeta):
     """
-    Wrapper for RPyC connection.
-    Provides simple API which is generic for all RPyC connections.
-    In order to extend the API implement a wrapping Lib.
+    BaseComponent class is the base class of all other components,
+    In order to extend the API implement a wrapping component, and to provide more complex functionality
+    add appropriate Lib.
     """
 
     def __init__(self, connection: BaseConnection) -> None:
@@ -26,8 +24,7 @@ class BaseComponent:
         Args:
             connection: Connection to the component.
         """
-        self._remote_connection = connection
-        self._rpyc = self._remote_connection.rpyc_connection
+        self._connection = connection
 
     def __enter__(self) -> BaseComponent:
         """Allowing the use of 'with' statement with components objects.
@@ -51,13 +48,31 @@ class BaseComponent:
             traceback: Exception traceback.
         """
 
-        self._remote_connection.close()
+        self._connection.close()
 
     @property
-    def connection(self) -> rpyc.core.protocol.Connection:
-        """RPyc connection to the component."""
+    def connection(self) -> BaseConnection:
+        """Connection to the component."""
 
-        return self._rpyc
+        return self._connection
+
+
+class RPyCComponent(BaseComponent):
+    """
+    Wrapper for RPyC component, a component which we can run python on.
+    Provides simple API which is generic for all RPyC connections.
+    It has basic functionality which can run cross platform, only assuming we can run python on the component.
+    """
+
+    def __init__(self, connection: RPyCConnection) -> None:
+        """Initiates the connection to remote machine.
+
+        Args:
+            connection: RPyC SlaveService connection to the component.
+        """
+        super().__init__(connection)
+
+        self._rpyc = self.connection.rpyc_connection
 
     def getpid(self) -> int:
         """Gets the PID of the service process."""
