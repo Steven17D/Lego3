@@ -4,8 +4,9 @@
 Implementation of the pytest-lego plugin.
 """
 from typing import Any, List
-
+import contextlib
 import functools
+
 import pytest
 import rpyc
 
@@ -41,8 +42,8 @@ def lego_manager(request) -> rpyc.Connection:
     return lego_manager
 
 
-@pytest.fixture(scope='function')
-def components(request, lego_manager) -> List[BaseComponent]:
+@contextlib.contextmanager
+def get_components(request, lego_manager) -> List[BaseComponent]:
     """Provides the components requested in corresponding lego mark for the test.
 
     This fixture provides the components requested by the test function.
@@ -72,11 +73,12 @@ def components(request, lego_manager) -> List[BaseComponent]:
     Returns:
         List of components requested in lego.mark.
     """
-
     lego_mark = request.node.get_closest_marker(LEGO_MARK)
     if lego_mark is None:
         # The test doesn't have the 'lego' mark.
-        return None
+        yield None
+        # There is no resources to free.
+        return
 
     with component_factory.acquire_components(
             lego_manager,
@@ -84,6 +86,36 @@ def components(request, lego_manager) -> List[BaseComponent]:
             *lego_mark.args,
             **lego_mark.kwargs
     ) as components:
+        yield components
+
+
+@pytest.fixture(scope='function')
+def components_func(request, lego_manager) -> List[BaseComponent]:
+    """Provides the components get_components fixture with scope=function.
+
+    Args:
+        request: A PyTest fixture helper, with information on the requesting test function.
+        lego_manager: An RPyC connection to LegoManager service.
+
+    Returns:
+        List of components requested in lego.mark.
+    """
+    with get_components(request, lego_manager) as components:
+        yield components
+
+
+@pytest.fixture(scope='class')
+def components_cls(request, lego_manager) -> List[BaseComponent]:
+    """Provides the components get_components fixture with scope=class.
+
+    Args:
+        request: A PyTest fixture helper, with information on the requesting test function.
+        lego_manager: An RPyC connection to LegoManager service.
+
+    Returns:
+        List of components requested in lego.mark.
+    """
+    with get_components(request, lego_manager) as components:
         yield components
 
 
@@ -112,14 +144,21 @@ def pytest_fixture_setup(fixturedef, request):
     if marks is None:
         return
 
-    mark = next(mark for mark in marks if LEGO_MARK == mark.name)
-    if mark is None:
+    try:
+        lego_mark = next(mark for mark in marks if LEGO_MARK == mark.name)
+    except StopIteration:
+        # The function doesn't have the 'lego' mark.
         return
 
     @functools.wraps(fixturedef.func)
     def setup_class_wrapper(*args, **kwargs):
-        lego_manager = request.getfixturevalue('components')
-        with component_factory.acquire_connections(lego_manager, *mark.args, **mark.kwargs) as wrapped_connections:
+        lego_manager = request.getfixturevalue('lego_manager')
+        with component_factory.acquire_components(
+                lego_manager,
+                request.config,
+                *lego_mark.args,
+                **lego_mark.kwargs
+        ) as wrapped_connections:
             test_class.setup_class(wrapped_connections, *args, **kwargs)
             try:
                 yield
