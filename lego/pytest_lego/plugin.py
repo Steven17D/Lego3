@@ -69,7 +69,7 @@ def components(request, lego_manager) -> List[BaseComponent]:
         request: A PyTest fixture helper, with information on the requesting test function.
         lego_manager: An RPyC connection to LegoManager service.
 
-    Returns:
+    Yields:
         List of components requested in lego.mark.
     """
     lego_mark = request.node.get_closest_marker(LEGO_MARK)

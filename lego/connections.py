@@ -45,7 +45,7 @@ class BaseConnection(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def close(self) -> None:
         """Closes all connections."""
-        raise NotImplementedError()
+        pass
 
 
 class SSHConnection(BaseConnection):
@@ -110,7 +110,7 @@ class RPyCConnection(SSHConnection):
             self._conn = rpyc.classic.connect(hostname, keepalive=True)
         except ConnectionRefusedError:
             # Upload RPyC and start SlaveService in a temporarily directory.
-            self._server = DeployedServer(self.shell)
+            with DeployedServer(self.shell) as server:
             self._conn = self._server.classic_connect()
 
     @property
