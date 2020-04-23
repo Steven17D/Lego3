@@ -6,7 +6,10 @@ from typing import Tuple, Optional, Type
 from types import TracebackType
 import abc
 
-from .connections import BaseConnection, RPyCConnection
+import rpyc
+from rpyc.utils.zerodeploy import DeployedServer
+
+from .connections import BaseConnection, SSHConnection
 
 _SocketAddress = Tuple[str, int]
 
@@ -47,8 +50,12 @@ class BaseComponent(metaclass=abc.ABCMeta):
             exc_value: Exception value.
             traceback: Exception traceback.
         """
-
+        self.close()
         self._connection.close()
+
+    def close(self):
+        """Allow subclasses to free resources after finishing tests."""
+        pass
 
     @property
     def connection(self) -> BaseConnection:
@@ -64,20 +71,36 @@ class RPyCComponent(BaseComponent):
     It has basic functionality which can run cross platform, only assuming we can run python on the component.
     """
 
-    def __init__(self, connection: RPyCConnection) -> None:
-        """Initiates the connection to remote machine.
+    def __init__(self, hostname: str, connection: BaseConnection) -> None:
+        """Initiates RPyC connection to SlaveService on remote machine.
 
         Args:
-            connection: RPyC SlaveService connection to the component.
+            hostname: Hostname of remote machine.
+            connection: Connection to the component.
         """
         super().__init__(connection)
 
-        self._rpyc = self.connection.rpyc_connection
+        try:
+            # Checks if the machine already runs RPyC SlaveService.
+            self.rpyc = rpyc.classic.connect(hostname, keepalive=True)
+        except ConnectionRefusedError:
+            if isinstance(connection, SSHConnection):
+                # Upload RPyC and start SlaveService in a temporarily directory.
+                with DeployedServer(connection.shell) as server:
+                    self.rpyc = server.classic_connect()
+            else:
+                raise
+
+    def close(self) -> None:
+        """Closes RPyC connection."""
+
+        self.rpyc.close()
+        super().close()
 
     def getpid(self) -> int:
         """Gets the PID of the service process."""
 
-        return self._rpyc.modules.os.getpid()
+        return self.rpyc.modules.os.getpid()
 
     def send_packet(self, addr: _SocketAddress, data: bytes) -> None:
         """Sends an UDP packet.
@@ -87,7 +110,7 @@ class RPyCComponent(BaseComponent):
             data: The data to send.
         """
 
-        r_socket = self._rpyc.modules['socket']
+        r_socket = self.rpyc.modules['socket']
         remote_socket = r_socket.socket(r_socket.AF_INET, r_socket.R_SOCK_DGRAM)
         remote_socket.sendto(data, addr)
         remote_socket.close()
@@ -102,10 +125,10 @@ class RPyCComponent(BaseComponent):
             The output of the command.
         """
 
-        return self._rpyc.modules["subprocess"].check_output(command.split())
+        return self.rpyc.modules["subprocess"].check_output(command.split())
 
     def get_ip(self) -> str:
         """Gets the IP of the remote machine."""
 
-        hostname = self._rpyc.modules['socket'].gethostname()
-        return self._rpyc.modules['socket'].gethostbyname(hostname)
+        hostname = self.rpyc.modules['socket'].gethostname()
+        return self.rpyc.modules['socket'].gethostbyname(hostname)

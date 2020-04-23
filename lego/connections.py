@@ -87,45 +87,6 @@ class SSHConnection(BaseConnection):
         self._machine.close()
 
 
-class RPyCConnection(SSHConnection):
-    """RPyC wrapper for SSH connection.
-
-    SSH connection to remote machine, provide the connection to remote RPyC SlaveService.
-    In case the machine doesn't already run SlaveService, it will be uploaded and run in a temporarily directory.
-    """
-
-    def __init__(self, hostname: str, username: str, password: str) -> None:
-        """Initiates SSH connection, and connects (and start if needed) to RPyC remote SlaveService.
-
-        Args:
-            hostname: The hostname of the component we want to connect to.
-            username: Username for SSH connection.
-            password: Password for SSH connection.
-        """
-        super().__init__(hostname, username, password)
-
-        try:
-            # Checks if the machine already runs RPyC SlaveService.
-            self._conn = rpyc.classic.connect(hostname, keepalive=True)
-        except ConnectionRefusedError:
-            # Upload RPyC and start SlaveService in a temporarily directory.
-            with DeployedServer(self.shell) as server:
-                self._conn = server.classic_connect()
-
-    @property
-    def rpyc_connection(self) -> rpyc.core.protocol.Connection:
-        """The RPyc connection to component."""
-
-        return self._conn
-
-    def close(self) -> None:
-        """Closes RPyC connections."""
-
-        self._conn.close()
-
-        super().close()
-
-
 class TelnetConnection(BaseConnection):
     # TODO: Add telnet connection that will support RPyC.
     pass

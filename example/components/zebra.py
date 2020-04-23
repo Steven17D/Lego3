@@ -6,7 +6,7 @@ import functools
 import random
 
 from lego.components import RPyCComponent
-from lego.connections import RPyCConnection
+from lego.connections import SSHConnection
 
 
 class Zebra(RPyCComponent):
@@ -20,9 +20,8 @@ class Zebra(RPyCComponent):
             username: Username for SSH login.
             password: Password for SSH login.
         """
-        super().__init__(RPyCConnection(hostname, username, password))
-
-        self._rpyc_conn = self.connection.rpyc_connection
+        self.ssh = SSHConnection(hostname, username, password)
+        super().__init__(hostname, self.ssh)
 
     async def send_and_receive(
             self,
@@ -44,12 +43,12 @@ class Zebra(RPyCComponent):
         src_port = random.randint(10000, 20000)
 
         packet = (
-            self._rpyc_conn.modules['scapy.all'].IP(dst=dst_ip) /
-            self._rpyc_conn.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
-            self._rpyc_conn.modules['scapy.all'].Raw(load=payload)
+            self.rpyc.modules['scapy.all'].IP(dst=dst_ip) /
+            self.rpyc.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
+            self.rpyc.modules['scapy.all'].Raw(load=payload)
         )
 
-        r_srloop = self._rpyc_conn.modules['scapy.all'].srloop
+        r_srloop = self.rpyc.modules['scapy.all'].srloop
         partial_r_srloop = functools.partial(
             r_srloop, packet, filter=f'udp and dst port {src_port}', timeout=1, count=count)
 

@@ -9,8 +9,8 @@ from Lego3.example.libs.tetanus import Tetanus
 
 
 TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
-BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
-BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
+BUGGY_LOGS_TOOL = TOOL + ' --output log.txt'
+BUGGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
 
 
 class TestsSpecGiraffe:
