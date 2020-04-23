@@ -15,6 +15,5 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 RUN apt-get install -y ncat tcpdump
 RUN pip install rpyc watchdog scapy
 
-# EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
 
