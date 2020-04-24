@@ -29,6 +29,8 @@ class LegoManager(rpyc.Service):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        # Allocation is a dictionary with the components from the setup as keys, and boolean values
+        # indicating if they are currently in use, e.g., {'zebra.alice': True, 'zebra.logan': False}
         self._allocations: Dict = dict()
         self._bg_threads: Dict = dict()
 
