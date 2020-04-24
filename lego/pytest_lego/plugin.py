@@ -1,7 +1,9 @@
 # type: ignore
 # pylint: skip-file
 """
-Implementation of the pytest-lego plugin.
+pytest-lego plugin provides 'Components' objects representing different components in the setup to test functions.
+Every test function can use the lego mark: 'pytest.mark.lego(<components_list>)' and with lego plugin it will receive
+python objects which provides API to run code/commands on the requested components.
 """
 from typing import Any, List
 import functools
