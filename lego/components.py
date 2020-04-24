@@ -2,16 +2,15 @@
 Component object provides the API which tests and libs will use to run code on the component.
 """
 from __future__ import annotations
-from typing import Tuple, Optional, Type
+from typing import Tuple, Optional, Type, Dict, List, Any
 from types import TracebackType
 import abc
+import socket
 
 import rpyc
 from rpyc.utils.zerodeploy import DeployedServer
 
 from .connections import BaseConnection, SSHConnection
-
-_SocketAddress = Tuple[str, int]
 
 
 class BaseComponent(metaclass=abc.ABCMeta):
@@ -102,18 +101,16 @@ class RPyCComponent(BaseComponent):
 
         return self.rpyc.modules.os.getpid()
 
-    def send_packet(self, addr: _SocketAddress, data: bytes) -> None:
-        """Sends an UDP packet.
+    def get_remote_socket(self, *args: int, **kwargs: int) -> socket.socket:
+        """Allocates a socket on remote machine.
 
         Args:
-            addr: The address (IP and port) to send the packet to.
-            data: The data to send.
+            args: Positional arguments passed to socket.socket() constructor.
+            kwargs: Keyword arguments passed to socket.socket() constructor.
         """
 
         r_socket = self.rpyc.modules['socket']
-        remote_socket = r_socket.socket(r_socket.AF_INET, r_socket.R_SOCK_DGRAM)
-        remote_socket.sendto(data, addr)
-        remote_socket.close()
+        return r_socket.socket(*args, **kwargs)
 
     def run_command(self, command: str) -> str:
         """Runs a bash command on the remote machine.
@@ -128,7 +125,18 @@ class RPyCComponent(BaseComponent):
         return self.rpyc.modules["subprocess"].check_output(command.split())
 
     def get_ip(self) -> str:
-        """Gets the IP of the remote machine."""
+        """Gets IP for default route interface of the remote machine."""
 
-        hostname = self.rpyc.modules['socket'].gethostname()
-        return self.rpyc.modules['socket'].gethostbyname(hostname)
+        r_socket = self.get_remote_socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # Doesn't have to be reachable.
+            r_socket.connect(('10.255.255.255', 1))
+            ip = r_socket.getsockname()[0]
+        except socket.error:
+            # Can't find default route, use localhost interface.
+            ip = '127.0.0.1'
+        finally:
+            r_socket.close()
+
+        return ip
+
