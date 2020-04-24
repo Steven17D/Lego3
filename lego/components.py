@@ -2,7 +2,7 @@
 Component object provides the API which tests and libs will use to run code on the component.
 """
 from __future__ import annotations
-from typing import Tuple, Optional, Type, Dict, List, Any
+from typing import Optional, Type
 from types import TracebackType
 import abc
 import socket
@@ -16,8 +16,8 @@ from .connections import BaseConnection, SSHConnection
 class BaseComponent(metaclass=abc.ABCMeta):
     """
     BaseComponent class is the base class of all other components,
-    In order to extend the API implement a wrapping component, and to provide more complex functionality
-    add appropriate Lib.
+    In order to extend the API implement a wrapping component, and to provide more
+    complex functionality add appropriate Lib.
     """
 
     def __init__(self, connection: BaseConnection) -> None:
@@ -54,7 +54,6 @@ class BaseComponent(metaclass=abc.ABCMeta):
 
     def close(self):
         """Allow subclasses to free resources after finishing tests."""
-        pass
 
     @property
     def connection(self) -> BaseConnection:
@@ -67,7 +66,8 @@ class RPyCComponent(BaseComponent):
     """
     Wrapper for RPyC component, a component which we can run python on.
     Provides simple API which is generic for all RPyC connections.
-    It has basic functionality which can run cross platform, only assuming we can run python on the component.
+    It has basic functionality which can run cross platform, only assuming we can run
+    python on the component.
     """
 
     def __init__(self, hostname: str, connection: BaseConnection) -> None:
@@ -131,12 +131,11 @@ class RPyCComponent(BaseComponent):
         try:
             # Doesn't have to be reachable.
             r_socket.connect(('10.255.255.255', 1))
-            ip = r_socket.getsockname()[0]
+            component_ip = r_socket.getsockname()[0]
         except socket.error:
             # Can't find default route, use localhost interface.
-            ip = '127.0.0.1'
+            component_ip = '127.0.0.1'
         finally:
             r_socket.close()
 
-        return ip
-
+        return component_ip

@@ -1,6 +1,6 @@
 """
-Connections provides the connection to the components. A connection should provide simple functionality to
-the component, such as running a shell command or upload a file.
+Connections provides the connection to the components. A connection should provide simple
+functionality to the component, such as running a shell command or upload a file.
 Each connection should be based on different protocol, e.g. SSH or telnet.
 """
 from __future__ import annotations
@@ -43,13 +43,13 @@ class BaseConnection(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def close(self) -> None:
         """Closes all connections."""
-        pass
 
 
 class SSHConnection(BaseConnection):
     """SSH connection for remote machine.
 
-    This connection provides a shell, that can be used to run shell commands and upload or download files.
+    This connection provides a shell, that can be used to run shell commands and upload or
+    download files.
 
     Usage example:
     connection = SSHConnection('zebra', 'admin', 'root')
@@ -57,7 +57,8 @@ class SSHConnection(BaseConnection):
     r_ls = shell["ls"]
     remote_files = r_ls()
 
-    For more details on how to use plumbum.SshMachine see https://plumbum.readthedocs.io/en/latest/#user-guide
+    For more details on how to use plumbum.SshMachine see:
+    https://plumbum.readthedocs.io/en/latest/#user-guide
     """
 
     def __init__(self, hostname: str, username: str, password: str) -> None:
@@ -70,7 +71,8 @@ class SSHConnection(BaseConnection):
         """
 
         # TODO: Check if Paramkio machine can be used with rpyc.DeployedServer.
-        #       SshMachine uses an ssh connection for every command, and paramkio use only one connection.
+        #       SshMachine uses an ssh connection for every command, and paramkio use only
+        #       one connection.
         self._machine = plumbum.SshMachine(hostname, user=username, password=password)
 
     @property
@@ -85,6 +87,4 @@ class SSHConnection(BaseConnection):
         self._machine.close()
 
 
-class TelnetConnection(BaseConnection):
-    # TODO: Add telnet connection that will support RPyC.
-    pass
+# TODO: Add telnet connection that will support RPyC.

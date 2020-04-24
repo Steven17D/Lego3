@@ -1,7 +1,7 @@
 """
 Lego manager controls and allocates setup for tests.
-Each test requests relevant components from lego manager, and the lego manager checks if there is an available setup
-and allocates it.
+Each test requests relevant components from lego manager, and the lego manager checks if
+there is an available setup and allocates it.
 Main features:
 1. Controls the timing of the tests to utilize the setup for maximum usage.
 2. Provides information on the state and statistics of different components in the setup.
@@ -112,23 +112,27 @@ class LegoManager(rpyc.Service):
             'zebra': 'Lego3.example.components.zebra.Zebra',
             'giraffe': 'Lego3.example.components.giraffe.Giraffe',
         }
-        components = (component.strip() for component in query.split('and'))
 
-        return {component: components_to_class_path[component.split('.')[0]] for component in components}
+        test_components = (component.strip() for component in query.split('and'))
+
+        return {component: components_to_class_path[component.split('.')[0]]
+                for component in test_components}
 
     @staticmethod
     def _run_query(query: str) -> str:
         """Find available setup according to given query.
 
-        Runs the requested setup query on the setup management files, and add instance names to components
-        with unspecified names.
-        For example, query given - 'zebra.alice and elephant', query returned - 'zebra.alice and elephant.bob'.
+        Runs the requested setup query on the setup management files, and add instance names
+        to components with unspecified names.
+        For example, query given - 'zebra.alice and elephant',
+        query returned - 'zebra.alice and elephant.bob'.
 
         Args:
             query: A query that describes the desired setup.
 
         Returns:
-            Final components query for the test. Each component should be built from component class and instance name.
+            Final components query for the test. Each component should be built from
+            component class and instance name.
         """
         return query
 
@@ -141,8 +145,8 @@ class LegoManager(rpyc.Service):
             query: A query that describes the desired setup.
             The query syntax is -
                 1. The components should be splitted by the word 'and'.
-                2. The format should be <component_class>.<instance_name>, or only <component_class> if
-                specific instance isn't needed.
+                2. The format should be <component_class>.<instance_name>,
+                   or only <component_class> if specific instance isn't needed.
             Example for a query - 'zebra.alice and elephant.bob and giraffe.4'.
 
             exclusive: Whether the required setup is needed exclusively.

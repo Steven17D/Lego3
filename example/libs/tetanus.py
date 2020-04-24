@@ -1,5 +1,6 @@
 """
-Tetanus is a top secret echo server. It listens for UDP packets in a given port and then it sends them back.
+Tetanus is a top secret echo server. It listens for UDP packets in a given port and
+then it sends them back.
 This module is a library for Tetanus functionality.
 """
 import subprocess

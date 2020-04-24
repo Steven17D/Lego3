@@ -57,6 +57,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
     @pytest.fixture(scope='function', autouse=True, params=[TEST_VERSION])
     def tetanus(self, request):
+        """Install Tetanus before every test function, and uninstall after test end."""
         tetanus_version = request.param
         # Install Tetanus at the start of each test.
         self._tetanus_lib.install(TestsSpecTetanus._giraffe, tetanus_version, self._echo_port)
@@ -93,7 +94,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
     @pytest.mark.lego('zebra.alice and zebra.logan')
     async def test_multi_monitor_send_and_receive(self, components): # type: ignore
-        """Send packets from multiple components and expect them back, while validating no bad logs written."""
+        """Send and receive data from multiple components, while validating no bad logs written."""
 
         tasks = []
 

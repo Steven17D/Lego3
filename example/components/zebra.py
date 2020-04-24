@@ -4,8 +4,8 @@ import asyncio
 import functools
 import random
 
-from lego.components import RPyCComponent
-from lego.connections import SSHConnection
+from Lego3.lego.components import RPyCComponent
+from Lego3.lego.connections import SSHConnection
 
 
 class Zebra(RPyCComponent):
