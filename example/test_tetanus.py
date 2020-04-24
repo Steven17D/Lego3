@@ -58,9 +58,11 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         tetanus_version = request.param
         # Install Tetanus at the start of each test.
         self._tetanus_lib.install(self._giraffe, tetanus_version, self._echo_port)
-        yield
-        # Uninstall Tetanus at the end of each test.
-        self._tetanus_lib.uninstall(self._giraffe)
+        try:
+            yield
+        finally:
+            # Uninstall Tetanus at the end of each test.
+            self._tetanus_lib.uninstall(self._giraffe)
 
     @pytest.mark.lego('zebra.alice')
     async def test_send_and_recv(self, components):  # type: ignore
