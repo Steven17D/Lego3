@@ -27,7 +27,7 @@ class LegoManager(rpyc.Service):
     ALIASES = ["LegoManager"]
     DEFAULT_PORT = 18861
 
-    def __init__(self, *args: List, **kwargs: Dict) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._allocations: Dict = dict()
         self._bg_threads: Dict = dict()

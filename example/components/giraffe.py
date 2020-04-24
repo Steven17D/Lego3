@@ -1,7 +1,6 @@
 """Giraffe component is the API to Giraffe component."""
-# TODO: add to docstring what is a Giraffe component?
 
-from typing import Any
+from typing import Any, Optional
 
 import contextlib
 import watchdog.events
@@ -27,15 +26,15 @@ class Giraffe(RPyCComponent):
     @contextlib.contextmanager
     def monitor_logs(
             self,
-            event_handler: watchdog.events.FileSystemEventHandler,
+            event_handler: Optional[watchdog.events.FileSystemEventHandler],
             directory: str
-        ) -> Any:
+    ) -> Any:
         """Monitor specific directory to not change.
 
         Args:
-            event_handler: Event handler that called with every
+            event_handler: Event handler that is called with every
                 incoming file system event.
-            directory: Directory to watch on.
+            directory: Directory to watch.
         """
 
         r_observer = self.rpyc.modules['watchdog.observers'].Observer()

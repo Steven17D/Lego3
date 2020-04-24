@@ -7,10 +7,7 @@ import pytest
 from Lego3.example.components.giraffe import Giraffe
 from Lego3.example.libs.tetanus import Tetanus
 
-
-TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
-BUGGY_LOGS_TOOL = TOOL + ' --output log.txt'
-BUGGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
+TEST_VERSION = 3
 
 
 class TestsSpecGiraffe:
@@ -58,28 +55,25 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         cls._tetanus_lib = Tetanus()
         cls._echo_port = 1337
 
-    def setup_method(self) -> None:
-        """Installes Tetanus at the start of each test."""
-
-        self._tetanus_lib.install(TestsSpecTetanus._giraffe, TOOL, self._echo_port)
-
-    def teardown_method(self) -> None:
-        """Uninstalles Tetanus at the end of each test."""
-
+    @pytest.fixture(scope='function', autouse=True, params=[TEST_VERSION])
+    def tetanus(self, request):
+        tetanus_version = request.param
+        # Install Tetanus at the start of each test.
+        self._tetanus_lib.install(TestsSpecTetanus._giraffe, tetanus_version, self._echo_port)
+        yield
+        # Uninstall Tetanus at the end of each test.
         self._tetanus_lib.uninstall(TestsSpecTetanus._giraffe)
 
     @pytest.mark.lego('zebra.alice')
     async def test_send_and_recv(self, components): # type: ignore
-        "The test send packets and expect them back."""
+        """Send packets and expect them back."""
 
         zebra, *_ = components
         await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra.alice and zebra.logan')
     async def test_multi_send_and_recv(self, components): # type: ignore
-        """The test send packets from multiple components and
-            expect them back.
-        """
+        """Send packets from multiple components and expect them back."""
 
         tasks = []
 
@@ -91,9 +85,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
     @pytest.mark.lego('zebra.alice')
     async def test_monitor_send_and_recv(self, components): # type: ignore
-        """The test send packets and expect them back while validating no bad
-            logs written.
-        """
+        """Send packets and expect them back while validating no bad logs written."""
 
         zebra, *_ = components
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
@@ -101,9 +93,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
 
     @pytest.mark.lego('zebra.alice and zebra.logan')
     async def test_multi_monitor_send_and_receive(self, components): # type: ignore
-        """The test send packets from multiple components and
-            expect them back, while validating no bad logs written.
-        """
+        """Send packets from multiple components and expect them back, while validating no bad logs written."""
 
         tasks = []
 

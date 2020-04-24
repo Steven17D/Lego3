@@ -9,8 +9,6 @@ from types import TracebackType
 import abc
 
 import plumbum
-import rpyc
-from rpyc.utils.zerodeploy import DeployedServer
 
 
 class BaseConnection(metaclass=abc.ABCMeta):
