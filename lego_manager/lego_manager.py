@@ -9,7 +9,7 @@ The manager runs on a central server.
 
 Note: Most of the features mentioned above aren't implemented yet.
 """
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Iterator
 
 import contextlib
 import rpyc
@@ -55,7 +55,7 @@ class LegoManager(rpyc.Service):
             self,
             query: str,
             exclusive: bool
-    ) -> _ComponentsToClassPath:
+    ) -> Iterator[_ComponentsToClassPath]:
         """Manages the components allocations.
 
         Args:
@@ -156,7 +156,7 @@ class LegoManager(rpyc.Service):
             components names and corresponding paths to Components classes.
             e.g. [('zebra.alice', 'Lego3.example.components.zebra.Zebra'), ...]
         """
-        return self._allocation(LegoManager._run_query(query), exclusive)
+        return self._allocation(self._run_query(query), exclusive)
 
 
 def main() -> None:

@@ -52,7 +52,7 @@ class BaseComponent(metaclass=abc.ABCMeta):
         self.close()
         self._connection.close()
 
-    def close(self):
+    def close(self) -> None:
         """Allow subclasses to free resources after finishing tests."""
 
     @property

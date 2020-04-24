@@ -11,7 +11,7 @@ from Lego3.lego.connections import SSHConnection
 class Zebra(RPyCComponent):
     """An extended interface for Zebra component."""
 
-    def __init__(self, hostname, username: str, password: str) -> None:
+    def __init__(self, hostname: str, username: str, password: str) -> None:
         """Initialize RPyC connection over SSH.
 
         Args:

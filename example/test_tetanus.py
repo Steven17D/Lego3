@@ -56,7 +56,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         cls._echo_port = 1337
 
     @pytest.fixture(scope='function', autouse=True, params=[TEST_VERSION])
-    def tetanus(self, request):
+    def tetanus(self, request):  # type: ignore
         """Install Tetanus before every test function, and uninstall after test end."""
         tetanus_version = request.param
         # Install Tetanus at the start of each test.
@@ -66,14 +66,14 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         self._tetanus_lib.uninstall(TestsSpecTetanus._giraffe)
 
     @pytest.mark.lego('zebra.alice')
-    async def test_send_and_recv(self, components): # type: ignore
+    async def test_send_and_recv(self, components):  # type: ignore
         """Send packets and expect them back."""
 
         zebra, *_ = components
         await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra.alice and zebra.logan')
-    async def test_multi_send_and_recv(self, components): # type: ignore
+    async def test_multi_send_and_recv(self, components):  # type: ignore
         """Send packets from multiple components and expect them back."""
 
         tasks = []
@@ -85,7 +85,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
         await asyncio.gather(*tasks)
 
     @pytest.mark.lego('zebra.alice')
-    async def test_monitor_send_and_recv(self, components): # type: ignore
+    async def test_monitor_send_and_recv(self, components):  # type: ignore
         """Send packets and expect them back while validating no bad logs written."""
 
         zebra, *_ = components
@@ -93,7 +93,7 @@ class TestsSpecTetanus(TestsSpecGiraffe):
             await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
 
     @pytest.mark.lego('zebra.alice and zebra.logan')
-    async def test_multi_monitor_send_and_receive(self, components): # type: ignore
+    async def test_multi_monitor_send_and_receive(self, components):  # type: ignore
         """Send and receive data from multiple components, while validating no bad logs written."""
 
         tasks = []

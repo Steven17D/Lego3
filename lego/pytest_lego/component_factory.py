@@ -2,7 +2,7 @@
 Supply components to the plugin by acquiring them in the lego manager,
 then getting their arguments from pytest configuration (pytest.ini file).
 """
-from typing import List, Any, Type
+from typing import List, Any, Type, Iterator
 
 import contextlib
 import importlib
@@ -50,7 +50,7 @@ def acquire_components(
         pytest_config: Any,
         query: str,
         exclusive: bool = True
-) -> List[BaseComponent]:
+) -> Iterator[List[BaseComponent]]:
     """Creates components based on the requested setup.
 
     Args:
