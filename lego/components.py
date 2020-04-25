@@ -71,7 +71,12 @@ class RPyCComponent(BaseComponent):
 
     _connection: RPyCConnection
 
-    def __init__(self, hostname: str, username: Optional[str], password: Optional[str]) -> None:
+    def __init__(
+            self,
+            hostname: str,
+            username: Optional[str] = None,
+            password: Optional[str] = None
+    ) -> None:
         """Initiates RPyC connection to SlaveService on remote machine.
 
         Connect to RPyC SlaveService on remote machine. If the service isn't running, try

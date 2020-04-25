@@ -37,8 +37,11 @@ def _get_component(component_name: str, component_path: str, pytest_config: Any)
     Returns:
         Component object.
     """
-    # A dictionary with all the arguments the component should receive in __init__.
-    component_config = pytest_config.inicfg.config.sections[component_name]
+    try:
+        # A dictionary with all the arguments the component should receive in __init__.
+        component_config = pytest_config.inicfg.config.sections[component_name]
+    except KeyError:
+        raise KeyError(f"{component_name} missing in pytest's configuration file.")
 
     component_class = _get_component_class(component_path)
     return component_class(**component_config)

@@ -96,7 +96,12 @@ class RPyCConnection(BaseConnection):
     deploy RPyC SlaveService.
     """
 
-    def __init__(self, hostname: str, username: Optional[str], password: Optional[str]) -> None:
+    def __init__(
+            self,
+            hostname: str,
+            username: Optional[str] = None,
+            password: Optional[str] = None
+    ) -> None:
         """Connects (or start with SSH if needed) to RPyC remote SlaveService.
 
         Connect to RPyC SlaveService on remote machine. If the service isn't running, try
@@ -119,7 +124,7 @@ class RPyCConnection(BaseConnection):
 
             with SSHConnection(hostname, username, password) as ssh:
                 # Upload RPyC and start SlaveService in a temporarily directory.
-                self._server = DeployedServer(ssh)
+                self._server = DeployedServer(ssh.shell)
                 self._connection = self._server.classic_connect()
 
     @property
