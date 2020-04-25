@@ -8,9 +8,8 @@ import abc
 import socket
 
 import rpyc
-from rpyc.utils.zerodeploy import DeployedServer
 
-from .connections import BaseConnection, SSHConnection
+from .connections import BaseConnection, RPyCConnection
 
 
 class BaseComponent(metaclass=abc.ABCMeta):
@@ -56,10 +55,9 @@ class BaseComponent(metaclass=abc.ABCMeta):
         """Allow subclasses to free resources after finishing tests."""
 
     @property
+    @abc.abstractmethod
     def connection(self) -> BaseConnection:
         """Connection to the component."""
-
-        return self._connection
 
 
 class RPyCComponent(BaseComponent):
@@ -70,36 +68,33 @@ class RPyCComponent(BaseComponent):
     python on the component.
     """
 
-    def __init__(self, hostname: str, connection: BaseConnection) -> None:
+    _connection: RPyCConnection
+
+    def __init__(self, hostname: str, username: Optional[str], password: Optional[str]) -> None:
         """Initiates RPyC connection to SlaveService on remote machine.
+
+        Connect to RPyC SlaveService on remote machine. If the service isn't running, try
+        to deploy it with SSHConnection and RPyC zero deploy library.
 
         Args:
             hostname: Hostname of remote machine.
-            connection: Connection to the component.
+            username: Username for SSH login (if needed).
+            password: Password for SSH login (if needed).
         """
-        super().__init__(connection)
+        rpyc_connection = RPyCConnection(hostname, username, password)
 
-        try:
-            # Checks if the machine already runs RPyC SlaveService.
-            self.rpyc = rpyc.classic.connect(hostname, keepalive=True)
-        except ConnectionRefusedError:
-            if isinstance(connection, SSHConnection):
-                # Upload RPyC and start SlaveService in a temporarily directory.
-                with DeployedServer(connection.shell) as server:
-                    self.rpyc = server.classic_connect()
-            else:
-                raise
+        super().__init__(rpyc_connection)
 
-    def close(self) -> None:
-        """Closes RPyC connection."""
+    @property
+    def connection(self) -> rpyc.Connection:
+        """The RPyc connection to component."""
 
-        self.rpyc.close()
-        super().close()
+        return self._connection.rpyc
 
     def getpid(self) -> int:
         """Gets the PID of the service process."""
 
-        return self.rpyc.modules.os.getpid()
+        return self.connection.modules.os.getpid()
 
     def get_remote_socket(self, *args: int, **kwargs: int) -> socket.socket:
         """Allocates a socket on remote machine.
@@ -109,7 +104,7 @@ class RPyCComponent(BaseComponent):
             kwargs: Keyword arguments passed to socket.socket() constructor.
         """
 
-        r_socket = self.rpyc.modules['socket']
+        r_socket = self.connection.modules['socket']
         return r_socket.socket(*args, **kwargs)
 
     def run_command(self, command: str) -> str:
@@ -122,7 +117,7 @@ class RPyCComponent(BaseComponent):
             The output of the command.
         """
 
-        return self.rpyc.modules["subprocess"].check_output(command.split())
+        return self.connection.modules["subprocess"].check_output(command.split())
 
     def get_ip(self) -> str:
         """Gets IP for default route interface of the remote machine."""

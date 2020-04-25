@@ -9,6 +9,8 @@ from types import TracebackType
 import abc
 
 import plumbum
+import rpyc
+from rpyc.utils.zerodeploy import DeployedServer
 
 
 class BaseConnection(metaclass=abc.ABCMeta):
@@ -87,4 +89,51 @@ class SSHConnection(BaseConnection):
         self._machine.close()
 
 
+class RPyCConnection(BaseConnection):
+    """RPyC wrapper for component connection.
+
+    In case the machine doesn't already run SlaveService, we will try to use SSH to upload and
+    deploy RPyC SlaveService.
+    """
+
+    def __init__(self, hostname: str, username: Optional[str], password: Optional[str]) -> None:
+        """Connects (or start with SSH if needed) to RPyC remote SlaveService.
+
+        Connect to RPyC SlaveService on remote machine. If the service isn't running, try
+        to deploy it with SSHConnection and RPyC zero deploy library.
+
+        Args:
+            hostname: The hostname of the component we want to connect to.
+            username: Username for SSH login (if needed).
+            password: Password for SSH login (if needed).
+        """
+
+        self._server = None
+        try:
+            # Checks if the machine already runs RPyC SlaveService.
+            self._connection = rpyc.classic.connect(hostname, keepalive=True)
+        except ConnectionRefusedError:
+            if username is None or password is None:
+                # Not given necessary SSH credentials.
+                raise
+
+            with SSHConnection(hostname, username, password) as ssh:
+                # Upload RPyC and start SlaveService in a temporarily directory.
+                self._server = DeployedServer(ssh)
+                self._connection = self._server.classic_connect()
+
+    @property
+    def rpyc(self) -> rpyc.Connection:
+        """The RPyc connection to component."""
+
+        return self._connection
+
+    def close(self) -> None:
+        """Closes RPyC connections."""
+
+        self._connection.close()
+        if self._server is not None:
+            self._server.close()
+
+        super().close()
 # TODO: Add telnet connection that will support RPyC.

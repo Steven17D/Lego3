@@ -6,22 +6,10 @@ import contextlib
 import watchdog.events
 
 from Lego3.lego.components import RPyCComponent
-from Lego3.lego.connections import SSHConnection
 
 
 class Giraffe(RPyCComponent):
     """An extended interface for Giraffe component."""
-
-    def __init__(self, hostname: str, username: str, password: str) -> None:
-        """Initialize RPyC connection over SSH.
-
-        Args:
-            hostname: Hostname of the component.
-            username: Username for SSH login.
-            password: Password for SSH login.
-        """
-        self.ssh = SSHConnection(hostname, username, password)
-        super().__init__(hostname, self.ssh)
 
     @contextlib.contextmanager
     def monitor_logs(
@@ -37,7 +25,7 @@ class Giraffe(RPyCComponent):
             directory: Directory to watch.
         """
 
-        r_observer = self.rpyc.modules['watchdog.observers'].Observer()
+        r_observer = self.connection.modules['watchdog.observers'].Observer()
         r_observer.schedule(event_handler, directory)
         r_observer.start()
         try:
