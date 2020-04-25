@@ -6,6 +6,7 @@ from typing import Optional, Type
 from types import TracebackType
 import abc
 import socket
+import ipaddress
 
 import rpyc
 
@@ -119,7 +120,7 @@ class RPyCComponent(BaseComponent):
 
         return self.connection.modules["subprocess"].check_output(command.split())
 
-    def get_ip(self) -> str:
+    def get_ip(self) -> ipaddress.IPv4Address:
         """Gets IP for default route interface of the remote machine."""
 
         r_socket = self.get_remote_socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -133,4 +134,4 @@ class RPyCComponent(BaseComponent):
         finally:
             r_socket.close()
 
-        return component_ip
+        return ipaddress.ip_address(component_ip)

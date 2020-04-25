@@ -3,6 +3,7 @@
 import asyncio
 import functools
 import random
+import ipaddress
 
 from Lego3.lego.components import RPyCComponent
 
@@ -12,7 +13,7 @@ class Zebra(RPyCComponent):
 
     async def send_and_receive(
             self,
-            dst_ip: str,
+            dst_ip: ipaddress.IPv4Address,
             dst_port: int,
             count: int = 5
     ) -> None:
@@ -31,8 +32,8 @@ class Zebra(RPyCComponent):
 
         r_scapy = self.connection.modules['scapy.all']
         packet = (
-            r_scapy.IP(dst=dst_ip) /
-            r_scapy.UDP(sport=src_port, dport=dst_port)/
+            r_scapy.IP(dst=str(dst_ip)) /
+            r_scapy.UDP(sport=src_port, dport=dst_port) /
             r_scapy.Raw(load=payload)
         )
 
