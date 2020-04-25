@@ -2,7 +2,7 @@
 Component object provides the API which tests and libs will use to run code on the component.
 """
 from __future__ import annotations
-from typing import Optional, Type
+from typing import Optional, Type, TypeVar
 from types import TracebackType
 import abc
 import socket
@@ -11,6 +11,8 @@ import ipaddress
 import rpyc
 
 from .connections import BaseConnection, RPyCConnection
+
+T = TypeVar('T', bound='BaseComponent')  # pylint: disable=invalid-name
 
 
 class BaseComponent(metaclass=abc.ABCMeta):
@@ -28,7 +30,7 @@ class BaseComponent(metaclass=abc.ABCMeta):
         """
         self._connection = connection
 
-    def __enter__(self) -> BaseComponent:
+    def __enter__(self: T) -> T:
         """Allowing the use of 'with' statement with components objects.
 
         Returns:

@@ -4,13 +4,15 @@ functionality to the component, such as running a shell command or upload a file
 Each connection should be based on different protocol, e.g. SSH or telnet.
 """
 from __future__ import annotations
-from typing import Optional, Type
+from typing import Optional, Type, TypeVar
 from types import TracebackType
 import abc
 
 import plumbum
 import rpyc
 from rpyc.utils.zerodeploy import DeployedServer
+
+T = TypeVar('T', bound='BaseConnection')  # pylint: disable=invalid-name
 
 
 class BaseConnection(metaclass=abc.ABCMeta):
@@ -19,7 +21,7 @@ class BaseConnection(metaclass=abc.ABCMeta):
     A connection should provide simple API to communicate and control the component.
     """
 
-    def __enter__(self) -> BaseConnection:
+    def __enter__(self: T) -> T:
         """Allowing the use of 'with' statement with connections objects.
 
         Returns:
@@ -124,7 +126,7 @@ class RPyCConnection(BaseConnection):
 
             with SSHConnection(hostname, username, password) as ssh:
                 # Upload RPyC and start SlaveService in a temporarily directory.
-                self._server = DeployedServer(ssh.shell)
+                self._server = DeployedServer(ssh.shell)  # pylint: disable=no-member
                 self._connection = self._server.classic_connect()
 
     @property
