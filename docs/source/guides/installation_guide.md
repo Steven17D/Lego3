@@ -1,11 +1,10 @@
-
-# Lego 3 - Installation Guide
+# Installation Guide
 
 This guide will help you install and run Lego 3.
 
 The purpose of this guide is so you will be able to run the example tests successfully, on your machine.  
 
-## Requierments
+## Requirements
 
 Linux machine with:
 

@@ -1,4 +1,4 @@
-# Lego 3 - Configurations Guide
+# Conventions Linters
 
 This guide will help you enforce Lego 3 conventions and prevent common mistakes.
 

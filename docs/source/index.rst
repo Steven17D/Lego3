@@ -10,11 +10,11 @@ Welcome to Lego3's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   configurations/configurations_guide
-   development_helpers/vscode/vscode_extensions_guide
-   guides/conventions_guide
-   guides/development_guide
    guides/installation_guide
+   guides/development_guide
+   guides/conventions_guide
+   development_helpers/developer_helpers
+   configurations/conventions_linters
 
 
 

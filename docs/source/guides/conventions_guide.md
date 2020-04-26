@@ -1,4 +1,4 @@
-# Lego 3 - Conventions Guide
+# Conventions Guide
 
 ## General
 
@@ -6,7 +6,8 @@ Our conventions based on [Google Python Conventions](https://google.github.io/st
 
 Before continue to read the following conventions, make sure you understand the above Google conventions.
 
-> **Note:** For user convenience we use several tools to force the conventions. You can find them in the folders configurations and under the development of _helpers.
+> **Note:** For user convenience we use several tools to force the conventions. 
+You can find them in [Conventions tools](../configurations/conventions_linters.md) and under the development of _helpers.
 
 ## Special Conventions
 

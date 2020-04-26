@@ -1,5 +1,4 @@
-
-# Lego 3 - VS Code Extensions Guide
+# VS Code Extensions Guide
 
 This file contains helpers and recommendations for development in VS Code for Lego 3 Project.  
 
@@ -31,4 +30,4 @@ Automatic documentation string for functions.
 
 [AutoDocString extension](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring).
 
-Our docstring configuration file can be found in *development_helpers/vscde/.mustache*.
+Our docstring configuration file can be found in *docs/source/development_helpers/vscde/.mustache*.

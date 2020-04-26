@@ -1,4 +1,4 @@
-# Lego 3 - Development Guide
+# Development Guide
 
 This file has 2 main purposes:
 
@@ -113,7 +113,7 @@ However, if you would like to go deeper into the project, you are more than welc
 
 ### Installation
 
-Please follow *Lego 3 - installation guide*.
+Please follow [Lego 3 - installation guide](./installation_guide.md).
 
 ### Source and Tasks Control
 
@@ -140,12 +140,13 @@ How to contribute to Lego?
 
 #### Pylint and MyPy
 
-Please follow *Lego 3 - configurations guide*.
+Please follow [Lego 3 - configurations guide](../configurations/conventions_linters.md).
 
 #### Conventions
 
-Please follow our *Lego 3 - conventions guide*.
+Please follow our [Lego 3 - conventions guide](./conventions_guide.md).
 
 ### IDEs
 
-Please follow the *development_helpers* directory and read the *extensions_guide* of your favorite IDE.
+Please follow the [Lego 3 - development helpers](../development_helpers/developer_helpers.md)
+and read the *extensions_guide* of your favorite IDE.
