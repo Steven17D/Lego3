@@ -1,5 +1,4 @@
 """Zebra component is the API to Zebra component."""
-
 import asyncio
 import functools
 import random

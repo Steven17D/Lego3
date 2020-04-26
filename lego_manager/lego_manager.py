@@ -1,6 +1,6 @@
 """
 Lego manager controls and allocates setup for tests.
-Each test requests relevant components from lego manager, and the lego manager checks if
+Each test requests relevant components from lego manager, and lego manager checks if
 there is an available setup and allocates it.
 Main features:
 1. Controls the timing of the tests to utilize the setup for maximum usage.

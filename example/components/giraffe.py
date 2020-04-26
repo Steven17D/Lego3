@@ -1,5 +1,4 @@
 """Giraffe component is the API to Giraffe component."""
-
 from typing import Any, Optional
 
 import contextlib
