@@ -1,5 +1,5 @@
 # Docker environment
-This is an example docker environment is only for developing and testing Lego.
+This is an example docker environment, used only for developing and testing Lego.
 This shouldn't be used in production.
 
 ## Dockerfile
