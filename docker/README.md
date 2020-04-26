@@ -1,4 +1,7 @@
 # Docker environment
+This is an example docker environment is only for developing and testing Lego.
+This shouldn't be used in production.
+
 ## Dockerfile
 Defines a basic docker image which is based on buster (the current stable distribution of Debian - version 10) with python 3.8.2.
 The docker has a `openssh-server`.
