@@ -12,7 +12,7 @@ import plumbum
 import rpyc
 from rpyc.utils.zerodeploy import DeployedServer
 
-T = TypeVar('T', bound='BaseConnection')  # pylint: disable=invalid-name
+Connection = TypeVar('Connection', bound='BaseConnection')
 
 
 class BaseConnection(metaclass=abc.ABCMeta):
@@ -21,7 +21,7 @@ class BaseConnection(metaclass=abc.ABCMeta):
     A connection should provide simple API to communicate and control the component.
     """
 
-    def __enter__(self: T) -> T:
+    def __enter__(self: Connection) -> Connection:
         """Allowing the use of 'with' statement with connections objects.
 
         Returns:
@@ -142,5 +142,4 @@ class RPyCConnection(BaseConnection):
         if self._server is not None:
             self._server.close()
 
-        super().close()
 # TODO: Add telnet connection that will support RPyC.

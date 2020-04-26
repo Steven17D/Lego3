@@ -12,7 +12,7 @@ import rpyc
 
 from .connections import BaseConnection, RPyCConnection
 
-T = TypeVar('T', bound='BaseComponent')  # pylint: disable=invalid-name
+Component = TypeVar('Component', bound='BaseComponent')
 
 
 class BaseComponent(metaclass=abc.ABCMeta):
@@ -26,11 +26,12 @@ class BaseComponent(metaclass=abc.ABCMeta):
         """Initiates the connection to remote machine.
 
         Args:
-            connection: Connection to the component.
+            connection: Connection to the component. Every component should initialize it's
+                        appropriate connection in __init__ and then pass it to BaseComponent.
         """
         self._connection = connection
 
-    def __enter__(self: T) -> T:
+    def __enter__(self: Component) -> Component:
         """Allowing the use of 'with' statement with components objects.
 
         Returns:
