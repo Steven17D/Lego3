@@ -8,10 +8,10 @@ services:
             - "../lego_manager/:/root/lego_manager"
         command: bash -c "python /root/lego_manager/lego_manager.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
-    zebra:
+    zebra_alice:
         build: .
-        container_name: zebra
-        hostname: zebra
+        container_name: zebra_alice
+        hostname: alice
         command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     giraffe:
@@ -20,10 +20,10 @@ services:
         hostname: giraffe
         command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
-    elephant:
+    zebra_logan:
         build: .
-        container_name: elephant
-        hostname: elephant
+        container_name: zebra_logan
+        hostname: logan
         command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
 
     dns:
@@ -36,8 +36,8 @@ services:
         volumes:
             - "/opt/dns-proxy-server/conf:/app/conf"
             - "/var/run/docker.sock:/var/run/docker.sock"
-            - "/run:/host/run"
+            - "/etc/resolv.conf:/host/etc/resolv.conf"
         environment:
-            - MG_RESOLVCONF=/host/run/resolvconf/resolv.conf
+            - MG_RESOLVCONF=/host/etc/resolv.conf
 
 

@@ -1,27 +1,28 @@
-"""Elephant lib is API to elephant component."""
-from typing import Any
+"""Giraffe component is the API to Giraffe component."""
+
+from typing import Any, Optional
 
 import contextlib
 import watchdog.events
 
-from Lego3.components.core import Core
+from Lego3.lego.components import RPyCComponent
 
 
-class Giraffe(Core):
-    """An extended library for Giraffe component."""
+class Giraffe(RPyCComponent):
+    """An extended interface for Giraffe component."""
 
     @contextlib.contextmanager
     def monitor_logs(
             self,
-            event_handler: watchdog.events.FileSystemEventHandler,
+            event_handler: Optional[watchdog.events.FileSystemEventHandler],
             directory: str
-        ) -> Any:
+    ) -> Any:
         """Monitor specific directory to not change.
 
         Args:
-            event_handler: Event handler that called with every
+            event_handler: Event handler that is called with every
                 incoming file system event.
-            directory: Diractory to watch on.
+            directory: Directory to watch.
         """
 
         r_observer = self.connection.modules['watchdog.observers'].Observer()

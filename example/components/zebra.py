@@ -1,21 +1,22 @@
-"""Zebra lib is API to Zebra component."""
+"""Zebra component is the API to Zebra component."""
 
 import asyncio
 import functools
 import random
+import ipaddress
 
-from Lego3.components.core import Core
+from Lego3.lego.components import RPyCComponent
 
 
-class Zebra(Core):
-    """An extended library for Zebra component."""
+class Zebra(RPyCComponent):
+    """An extended interface for Zebra component."""
 
     async def send_and_receive(
             self,
-            dst_ip: str,
+            dst_ip: ipaddress.IPv4Address,
             dst_port: int,
             count: int = 5
-        ) -> None:
+    ) -> None:
         """Sends packets and receive them back.
 
         Args:
@@ -29,13 +30,14 @@ class Zebra(Core):
         payload = 'Lego3 is great'
         src_port = random.randint(10000, 20000)
 
+        r_scapy = self.connection.modules['scapy.all']
         packet = (
-            self.connection.modules['scapy.all'].IP(dst=dst_ip) /
-            self.connection.modules['scapy.all'].UDP(sport=src_port, dport=dst_port)/
-            self.connection.modules['scapy.all'].Raw(load=payload)
+            r_scapy.IP(dst=str(dst_ip)) /
+            r_scapy.UDP(sport=src_port, dport=dst_port) /
+            r_scapy.Raw(load=payload)
         )
 
-        r_srloop = self.connection.modules['scapy.all'].srloop
+        r_srloop = r_scapy.srloop
         partial_r_srloop = functools.partial(
             r_srloop, packet, filter=f'udp and dst port {src_port}', timeout=1, count=count)
 

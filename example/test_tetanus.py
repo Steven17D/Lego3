@@ -7,10 +7,7 @@ import pytest
 from Lego3.example.components.giraffe import Giraffe
 from Lego3.example.libs.tetanus import Tetanus
 
-
-TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/cat"'
-BUGY_LOGS_TOOL = TOOL + ' --output log.txt'
-BUGY_SEND_TOOL = 'ncat -l {} --keep-open --udp --exec "/bin/echo lego"'
+TEST_VERSION = 3
 
 
 class TestsSpecGiraffe:
@@ -23,14 +20,15 @@ class TestsSpecGiraffe:
     _giraffe: Giraffe = None # type: ignore
 
     @classmethod
-    def setup_class(cls, connections: List[Giraffe]) -> None:
+    @pytest.mark.lego('giraffe.bob')
+    def setup_class(cls, components: List[Giraffe]) -> None:
         """Initializes the variables once in the start of the spec.
 
         Args:
-            connections: Required components.
+            components: Required components.
         """
 
-        cls._giraffe, *_ = connections
+        cls._giraffe, *_ = components
 
 
 class TestsSpecTetanus(TestsSpecGiraffe):
@@ -44,72 +42,71 @@ class TestsSpecTetanus(TestsSpecGiraffe):
     _tetanus_lib: Tetanus
     _echo_port: int
 
-    @classmethod
-    @pytest.mark.lego('giraffe')
-    def setup_class(cls, connections: List[Giraffe]) -> None:
-        """Initializes the variables once in the start of the spec.
+    @pytest.fixture(scope='class', autouse=True)
+    def init_tetanus_lib(self) -> None:
+        """Initializes tetanus lib, only once, in the start of the test suite."""
 
-        Args:
-            connections: Required components.
-        """
+        # Can't set instance attributes in fixture with scope='class', only class attributes.
+        cls = type(self)
+        cls._tetanus_lib = Tetanus()  # pylint: disable=protected-access
+        cls._echo_port = 1337  # pylint: disable=protected-access
 
-        super().setup_class(connections)
+    @pytest.fixture(scope='function', autouse=True, params=[TEST_VERSION])
+    def tetanus(self, request):  # type: ignore
+        """Install Tetanus before every test function, and uninstall after test end."""
 
-        cls._tetanus_lib = Tetanus()
-        cls._echo_port = 1337
+        tetanus_version = request.param
+        # Install Tetanus at the start of each test.
+        self._tetanus_lib.install(self._giraffe, tetanus_version, self._echo_port)
+        yield
+        # Uninstall Tetanus at the end of each test.
+        self._tetanus_lib.uninstall(self._giraffe)
 
-    def setup_method(self) -> None:
-        """Installes Tetanus at the start of each test."""
+    @pytest.mark.lego('zebra.alice')
+    async def test_send_and_recv(self, components):  # type: ignore
+        """Send packets and expect them back."""
 
-        self._tetanus_lib.install(TestsSpecTetanus._giraffe, TOOL, self._echo_port)
+        zebra, *_ = components
+        await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
-    def teardown_method(self) -> None:
-        """Uninstalles Tetanus at the end of each test."""
-
-        self._tetanus_lib.uninstall(TestsSpecTetanus._giraffe)
-
-    @pytest.mark.lego('zebra')
-    async def test_send_and_recv(self, connections): # type: ignore
-        "The test send packets and expect them back."""
-
-        zebra, *_ = connections
-        await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
-
-    @pytest.mark.lego('zebra and elephant')
-    async def test_multi_send_and_recv(self, connections): # type: ignore
-        """The test send packets from multiple components and
-            expect them back.
-        """
+    @pytest.mark.lego('zebra.alice and zebra.logan')
+    async def test_multi_send_and_recv(self, components):  # type: ignore
+        """Send packets from multiple components and expect them back."""
 
         tasks = []
 
-        for connection in connections:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
         await asyncio.gather(*tasks)
 
-    @pytest.mark.lego('zebra')
-    async def test_monitor_send_and_recv(self, connections): # type: ignore
-        """The test send packets and expect them back while validating no bad
-            logs written.
-        """
+    @pytest.mark.lego('zebra.alice')
+    async def test_monitor_send_and_recv(self, components):  # type: ignore
+        """Send packets and expect them back while validating no bad logs written."""
 
-        zebra, *_ = connections
+        zebra, *_ = components
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
-            await zebra.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)
+            await zebra.send_and_receive(self._giraffe.get_ip(), self._echo_port)
 
-    @pytest.mark.lego('zebra and elephant')
-    async def test_multi_monitor_send_and_receive(self, connections): # type: ignore
-        """The test send packets from multiple components and
-            expect them back, while validating no bad logs written.
-        """
+    @pytest.mark.lego('zebra.alice and zebra.logan')
+    # Example of cool usage of parametrize.
+    @pytest.mark.parametrize(
+        'tetanus',
+        [
+            pytest.param(1, marks=pytest.mark.xfail),
+            pytest.param(2, marks=pytest.mark.xfail),
+            3
+        ],
+        indirect=True)
+    async def test_multi_monitor_send_and_receive(self, components):  # type: ignore
+        """Send and receive data from multiple components, while validating no bad logs written."""
 
         tasks = []
 
-        for connection in connections:
+        for component in components:
             tasks.append(asyncio.ensure_future(
-                connection.send_and_receive(TestsSpecTetanus._giraffe.get_ip(), self._echo_port)))
+                component.send_and_receive(self._giraffe.get_ip(), self._echo_port)))
 
         with TestsSpecTetanus._giraffe.monitor_logs(event_handler=None, directory='.'):
             await asyncio.gather(*tasks)
