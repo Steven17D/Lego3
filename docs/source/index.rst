@@ -1,8 +1,3 @@
-.. Lego3 documentation master file, created by
-   sphinx-quickstart on Sun Apr 26 19:52:56 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Lego3's documentation!
 =================================
 
@@ -15,7 +10,7 @@ from the previous Lego infrastructure we used.
 Features
 --------
 * **Zero deploy** - With Lego3, if your component support SSH and python, you won't have to upload anything to allow
-  your tests to run code on the component!
+  your tests to run code on your setup components!
 
 * **New Technologies** - Lego3 was developed in python3.8 and therefore supports new python3
   features and new third party libraries. You can read on more new technologies used in Lego3 below.
@@ -59,7 +54,7 @@ Terminology
    :caption: Contents:
 
    guides/installation_guide
-   guides/development_guide
+   guides/tutorial
    guides/conventions_guide
    development_helpers/developer_helpers
    configurations/conventions_linters
