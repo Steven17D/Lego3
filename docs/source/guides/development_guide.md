@@ -19,7 +19,7 @@ Lego 3 is a new distributed testing infrastructure used to test and monitor our 
 
 Lego 3 is a completely new project, written from scratch, but its requirements based on insights from the previous testing infrastructure we used.
 
-Read the requirements for this project [here](https://docs.google.com/document/d/1gSl9_jS_pIAkGtNLJSBKUGRbcOhALKMzv1ewWZSSElg/edit?usp=sharing) under "Requirments".
+Read the requirements for this project [here](https://docs.google.com/document/d/1gSl9_jS_pIAkGtNLJSBKUGRbcOhALKMzv1ewWZSSElg/edit?usp=sharing) under "Requirements".
 
 #### Terminology and Structure (*Mandatory*)
 
