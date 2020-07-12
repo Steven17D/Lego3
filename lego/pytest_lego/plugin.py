@@ -1,7 +1,7 @@
 # type: ignore
 # pylint: skip-file
 """
-pytest-lego plugin provides 'Components' objects representing different components in the setup to test functions.
+Pytest-lego plugin provides 'Components' objects representing different components in the setup to test functions.
 Every test function can use the lego mark: 'pytest.mark.lego(<components_list>)' and with lego plugin it will receive
 python objects which provides API to run code/commands on the requested components.
 """
@@ -50,22 +50,23 @@ def components(request, lego_manager) -> List[BaseComponent]:
     This fixture provides the components requested by the test function.
     To provide arguments to the components, one should define [component] section in pytest config file.
 
-    Typical usage example:
+    Example:
+        .. code-block:: python
 
-    @pytest.mark.lego('zebra.alice and elephant.bob')
-    def test_default_sizes(self, components):
-        zebra, elephant, *_ = components
-        assert zebra.size == elephant.size
+            @pytest.mark.lego('zebra.alice and elephant.bob')
+            def test_default_sizes(self, components):
+                zebra, elephant, *_ = components
+                assert zebra.size == elephant.size
 
-    Example for configuration in pytest.ini:
-    [zebra.alice]
-    hostname = zebra
-    username = admin
-    password = password
-    [elephant.bob]
-    hostname=192.168.100.11
-    name = Bob
-    size = 120
+            Example for configuration in pytest.ini:
+            [zebra.alice]
+            hostname = zebra
+            username = admin
+            password = password
+            [elephant.bob]
+            hostname = 192.168.100.11
+            name = Bob
+            size = 120
 
     Args:
         request: A PyTest fixture helper, with information on the requesting test function.

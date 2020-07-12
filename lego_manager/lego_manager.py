@@ -3,11 +3,14 @@ Lego manager controls and allocates setup for tests.
 Each test requests relevant components from lego manager, and lego manager checks if
 there is an available setup and allocates it.
 Main features:
-1. Controls the timing of the tests to utilize the setup for maximum usage.
-2. Provides information on the state and statistics of different components in the setup.
+
+    1. Controls the timing of the tests to utilize the setup for maximum usage.
+    2. Provides information on the state and statistics of different components in the setup.
+
 The manager runs on a central server.
 
-Note: Most of the features mentioned above aren't implemented yet.
+Note:
+     Most of the features mentioned above aren't implemented yet.
 """
 from typing import List, Dict, Any, Iterator
 
@@ -149,7 +152,8 @@ class LegoManager(rpyc.Service):
                 1. The components should be splitted by the word 'and'.
                 2. The format should be <component_class>.<instance_name>,
                    or only <component_class> if specific instance isn't needed.
-            Example for a query - 'zebra.alice and elephant.bob and giraffe.4'.
+            Example:
+                 'zebra.alice and elephant.bob and giraffe.4'.
 
             exclusive: Whether the required setup is needed exclusively.
 
