@@ -15,7 +15,6 @@ class LogMonitor:
         try:
             old_stat = c.modules.os.stat(d)
             while True:
-                print(old_stat == c.modules.os.stat(d))
                 assert old_stat == c.modules.os.stat(d)
                 await asyncio.sleep(0)
         except asyncio.CancelledError:
