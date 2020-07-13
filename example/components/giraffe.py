@@ -1,37 +1,39 @@
 """Giraffe component is the API to Giraffe component."""
 from typing import Any, Optional
 
+import asyncio
 import contextlib
 import watchdog.events
 
 from Lego3.lego.components import RPyCComponent
 
 
+class LogMonitor:
+    """A logs monitoring manager."""
+
+    async def monitor(self, c, d):
+        try:
+            old_stat = c.modules.os.stat(d)
+            while True:
+                print(old_stat == c.modules.os.stat(d))
+                assert old_stat == c.modules.os.stat(d)
+                await asyncio.sleep(0)
+        except asyncio.CancelledError:
+            pass
+
+
 class Giraffe(RPyCComponent):
     """An extended interface for Giraffe component."""
 
     @contextlib.contextmanager
-    def monitor_logs(
-            self,
-            event_handler: Optional[watchdog.events.FileSystemEventHandler],
-            directory: str
-    ) -> Any:
-        """Monitor specific directory to not change.
-
-        Args:
-            event_handler: Event handler that is called with every
-                incoming file system event.
-            directory: Directory to watch.
-        """
-
-        r_observer = self.connection.modules['watchdog.observers'].Observer()
-        r_observer.schedule(event_handler, directory)
-        r_observer.start()
+    def monitor_logs(self, d) -> Any:
+        l = LogMonitor()
+        t = asyncio.create_task(l.monitor(self.connection, d))
+        yield
         try:
-            yield r_observer
+            t.result() # Raises the task exceptions
+        except asyncio.exceptions.InvalidStateError:
+            pass
         finally:
-            r_observer.stop()
-            r_observer.join()
-            if not r_observer.event_queue.empty():
-                for event in r_observer.event_queue.get():
-                    assert 'log.txt' not in event.src_path
+            t.cancel()
+
