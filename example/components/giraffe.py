@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 import asyncio
 import contextlib
-import watchdog.events
 
 from Lego3.lego.components import RPyCComponent
 from Lego3.lego.connections import RPyCConnection
