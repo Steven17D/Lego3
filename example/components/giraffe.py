@@ -1,21 +1,21 @@
 """Giraffe component is the API to Giraffe component."""
-from typing import Any, Optional
+from typing import Any
 
 import asyncio
 import contextlib
+import rpyc
 
 from Lego3.lego.components import RPyCComponent
-from Lego3.lego.connections import RPyCConnection
 
 
 class LogMonitor:
     """A logs monitoring manager."""
 
     async def monitor(
-        self,
-        connection: RPyCConnection,
-        path: str
-    ) -> Any:
+            self,
+            connection: rpyc.Connection,
+            path: str
+        ) -> Any:
         """Monitor file task.
 
         Args:
@@ -52,4 +52,3 @@ class Giraffe(RPyCComponent):
             pass
         finally:
             monitoring.cancel()
-
