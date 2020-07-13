@@ -1,0 +1,43 @@
+version: '3'
+services:
+    central:
+        build: .
+        container_name: central
+        hostname: central
+        volumes:
+            - "../lego_manager/:/root/lego_manager"
+        command: bash -c "python /root/lego_manager/lego_manager.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+
+    zebra_alice:
+        build: .
+        container_name: zebra_alice
+        hostname: alice
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+
+    giraffe:
+        build: .
+        container_name: giraffe
+        hostname: giraffe
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+
+    zebra_logan:
+        build: .
+        container_name: zebra_logan
+        hostname: logan
+        command: bash -c "python /usr/local/bin/rpyc_classic.py --host 0.0.0.0 & /usr/sbin/sshd -D"
+
+    dns:
+        image: defreitas/dns-proxy-server
+        container_name: dns-proxy-server
+        hostname: dns.mageddo
+        restart: unless-stopped
+        ports: 
+            - "5380:5380"
+        volumes:
+            - "/opt/dns-proxy-server/conf:/app/conf"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/etc/resolv.conf:/host/etc/resolv.conf"
+        environment:
+            - MG_RESOLVCONF=/host/etc/resolv.conf
+
+
